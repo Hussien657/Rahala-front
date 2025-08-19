@@ -9,16 +9,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-gradient-to-r from-primary via-primary to-primary/80 text-primary-foreground shadow-lg hover:from-primary/90 hover:via-primary hover:to-primary/70 hover:shadow-xl transition-all duration-300 transform hover:scale-105 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-gradient-to-r from-destructive via-destructive to-destructive/80 text-destructive-foreground shadow-lg hover:from-destructive/90 hover:via-destructive hover:to-destructive/70 hover:shadow-xl transition-all duration-300 transform hover:scale-105 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700",
         outline:
-          "border border-input bg-background hover:bg-primary/90 hover:text-primary-foreground",
+          "border border-input bg-background hover:bg-gradient-to-r hover:from-primary/90 hover:via-primary hover:to-primary/70 hover:text-primary-foreground hover:border-transparent transition-all duration-300 transform hover:scale-105 hover:shadow-lg relative overflow-hidden hover:before:absolute hover:before:inset-0 hover:before:bg-gradient-to-r hover:before:from-transparent hover:before:via-white/10 hover:before:to-transparent hover:before:animate-[shimmer_0.7s_ease-in-out]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-primary/10 hover:text-primary",
+          "bg-gradient-to-r from-secondary via-secondary to-secondary/80 text-secondary-foreground shadow-lg hover:from-secondary/80 hover:via-secondary hover:to-secondary/60 hover:shadow-xl transition-all duration-300 transform hover:scale-105 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700",
+        ghost: "hover:bg-gradient-to-r hover:from-primary/10 hover:via-primary/5 hover:to-primary/10 hover:text-primary transition-all duration-300",
         link: "text-primary underline-offset-4 hover:underline",
-        soft: "bg-primary/10 text-primary hover:bg-primary/20",
+        soft: "bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 text-primary hover:from-primary/20 hover:via-primary/10 hover:to-primary/20 transition-all duration-300",
       },
       size: {
         default: "h-10 px-4 py-2",

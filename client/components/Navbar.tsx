@@ -138,7 +138,14 @@ const Navbar = () => {
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Button
+                      variant="ghost"
+                      className={`relative h-10 w-10 rounded-full transition-all duration-300 ${
+                        isActive('/profile') || isActive('/settings')
+                          ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+                          : 'hover:ring-2 hover:ring-primary/50 hover:ring-offset-2 hover:ring-offset-background'
+                      }`}
+                    >
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={user?.avatar} alt={user?.name} />
                         <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
