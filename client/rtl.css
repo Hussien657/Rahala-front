@@ -1,0 +1,328 @@
+/* RTL (Right-to-Left) Support Styles */
+
+/* Base RTL styles */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="ltr"] {
+  text-align: left;
+}
+
+/* Spacing utilities for RTL */
+[dir="rtl"] .space-x-1 > * + * {
+  margin-left: 0 !important;
+  margin-right: 0.25rem !important;
+}
+
+[dir="rtl"] .space-x-2 > * + * {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+[dir="rtl"] .space-x-3 > * + * {
+  margin-left: 0 !important;
+  margin-right: 0.75rem !important;
+}
+
+[dir="rtl"] .space-x-4 > * + * {
+  margin-left: 0 !important;
+  margin-right: 1rem !important;
+}
+
+/* Margin utilities for RTL */
+[dir="rtl"] .mr-2 {
+  margin-right: 0 !important;
+  margin-left: 0.5rem !important;
+}
+
+[dir="rtl"] .mr-3 {
+  margin-right: 0 !important;
+  margin-left: 0.75rem !important;
+}
+
+[dir="rtl"] .mr-4 {
+  margin-right: 0 !important;
+  margin-left: 1rem !important;
+}
+
+[dir="rtl"] .ml-2 {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+[dir="rtl"] .ml-3 {
+  margin-left: 0 !important;
+  margin-right: 0.75rem !important;
+}
+
+[dir="rtl"] .ml-4 {
+  margin-left: 0 !important;
+  margin-right: 1rem !important;
+}
+
+/* Padding utilities for RTL */
+[dir="rtl"] .pl-10 {
+  padding-left: 1rem !important;
+  padding-right: 2.5rem !important;
+}
+
+[dir="rtl"] .pr-4 {
+  padding-right: 1rem !important;
+  padding-left: 1rem !important;
+}
+
+/* Flexbox utilities for RTL */
+[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+/* Form inputs in RTL */
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] input[type="search"],
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}
+
+/* Search input specific styling for RTL */
+[dir="rtl"] .search-input {
+  padding-left: 1rem;
+  padding-right: 2.5rem;
+}
+
+[dir="rtl"] .search-icon {
+  left: auto;
+  right: 0.75rem;
+}
+
+/* Dropdown menus in RTL */
+[dir="rtl"] .dropdown-menu,
+[dir="rtl"] [role="menu"] {
+  text-align: right;
+}
+
+/* Card content in RTL */
+[dir="rtl"] .card-header,
+[dir="rtl"] .card-content {
+  text-align: right;
+}
+
+/* Button content in RTL */
+[dir="rtl"] .btn-content {
+  flex-direction: row-reverse;
+}
+
+/* Navigation items in RTL */
+[dir="rtl"] .nav-item {
+  flex-direction: row-reverse;
+}
+
+/* Avatar and user info in RTL */
+[dir="rtl"] .user-info {
+  text-align: right;
+}
+
+/* Alert and toast messages in RTL */
+[dir="rtl"] .alert,
+[dir="rtl"] .toast {
+  text-align: right;
+}
+
+/* Modal and dialog content in RTL */
+[dir="rtl"] .modal-content,
+[dir="rtl"] .dialog-content {
+  text-align: right;
+}
+
+/* Table content in RTL */
+[dir="rtl"] table {
+  direction: rtl;
+}
+
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+}
+
+/* List items in RTL */
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  text-align: right;
+}
+
+[dir="rtl"] li {
+  text-align: right;
+}
+
+/* Form labels in RTL */
+[dir="rtl"] label {
+  text-align: right;
+}
+
+/* Breadcrumb navigation in RTL */
+[dir="rtl"] .breadcrumb {
+  flex-direction: row-reverse;
+}
+
+/* Pagination in RTL */
+[dir="rtl"] .pagination {
+  flex-direction: row-reverse;
+}
+
+/* Sidebar in RTL */
+[dir="rtl"] .sidebar {
+  right: 0;
+  left: auto;
+}
+
+/* Tooltip positioning in RTL */
+[dir="rtl"] .tooltip {
+  text-align: right;
+}
+
+/* Progress bars in RTL */
+[dir="rtl"] .progress-bar {
+  direction: rtl;
+}
+
+/* Tabs in RTL */
+[dir="rtl"] .tabs {
+  direction: rtl;
+}
+
+/* Accordion in RTL */
+[dir="rtl"] .accordion {
+  text-align: right;
+}
+
+/* Calendar in RTL */
+[dir="rtl"] .calendar {
+  direction: rtl;
+}
+
+/* Date picker in RTL */
+[dir="rtl"] .date-picker {
+  direction: rtl;
+}
+
+/* Time picker in RTL */
+[dir="rtl"] .time-picker {
+  direction: rtl;
+}
+
+/* Color picker in RTL */
+[dir="rtl"] .color-picker {
+  direction: rtl;
+}
+
+/* File upload in RTL */
+[dir="rtl"] .file-upload {
+  text-align: right;
+}
+
+/* Image gallery in RTL */
+[dir="rtl"] .image-gallery {
+  direction: rtl;
+}
+
+/* Video player controls in RTL */
+[dir="rtl"] .video-controls {
+  direction: rtl;
+}
+
+/* Map controls in RTL */
+[dir="rtl"] .map-controls {
+  right: 10px;
+  left: auto;
+}
+
+/* Chart and graph labels in RTL */
+[dir="rtl"] .chart-label,
+[dir="rtl"] .graph-label {
+  text-align: right;
+}
+
+/* Loading spinner in RTL */
+[dir="rtl"] .loading-spinner {
+  direction: ltr; /* Keep spinner direction consistent */
+}
+
+/* Code blocks in RTL */
+[dir="rtl"] pre,
+[dir="rtl"] code {
+  direction: ltr; /* Keep code direction LTR for readability */
+  text-align: left;
+}
+
+/* Email addresses and URLs in RTL */
+[dir="rtl"] .email,
+[dir="rtl"] .url {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Phone numbers in RTL */
+[dir="rtl"] .phone {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Numbers and dates in RTL */
+[dir="rtl"] .number,
+[dir="rtl"] .date {
+  direction: ltr;
+}
+
+/* Social media icons in RTL */
+[dir="rtl"] .social-icons {
+  flex-direction: row-reverse;
+}
+
+/* Rating stars in RTL */
+[dir="rtl"] .rating-stars {
+  flex-direction: row-reverse;
+}
+
+/* Step indicators in RTL */
+[dir="rtl"] .step-indicator {
+  flex-direction: row-reverse;
+}
+
+/* Timeline in RTL */
+[dir="rtl"] .timeline {
+  direction: rtl;
+}
+
+/* Comments section in RTL */
+[dir="rtl"] .comments {
+  text-align: right;
+}
+
+/* Chat messages in RTL */
+[dir="rtl"] .chat-message {
+  text-align: right;
+}
+
+/* Notification badges in RTL */
+[dir="rtl"] .notification-badge {
+  right: auto;
+  left: -0.5rem;
+}
+
+/* Search results in RTL */
+[dir="rtl"] .search-results {
+  text-align: right;
+}
+
+/* Filter options in RTL */
+[dir="rtl"] .filter-options {
+  text-align: right;
+}
+
+/* Sort options in RTL */
+[dir="rtl"] .sort-options {
+  flex-direction: row-reverse;
+}
