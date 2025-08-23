@@ -1,6 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { baseApi } from './baseApi';
 import authReducer from './authSlice';
+// Import subscription API to register endpoints
+import './subscriptionApi';
 
 export const store = configureStore({
     reducer: {

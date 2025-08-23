@@ -44,9 +44,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem('user');
-      if (storedUser) {
+      const accessToken = localStorage.getItem('accessToken');
+      if (storedUser && accessToken) {
         const userData = JSON.parse(storedUser);
         setUser(userData);
+      } else {
+        // Ensure we don't consider the user authenticated if no valid token exists
+        localStorage.removeItem('user');
       }
     } catch (error) {
       console.error('Failed to load user from localStorage:', error);

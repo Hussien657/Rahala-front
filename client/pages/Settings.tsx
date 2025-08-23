@@ -48,10 +48,12 @@ const Settings = () => {
   // Show loading spinner while checking authentication
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir={direction}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading settings...</p>
+          <p className="mt-4 text-gray-600">
+            <TranslatableText staticKey="settings.loading">جاري تحميل الإعدادات...</TranslatableText>
+          </p>
         </div>
       </div>
     );
@@ -84,59 +86,91 @@ const Settings = () => {
     };
     setPasswordErrors(nextErrors);
     if (Object.values(nextErrors).some(Boolean)) {
-      toast({ title: 'Please correct the highlighted fields' });
+      toast({ title: t('settings.correctFields', 'يرجى تصحيح الحقول المميزة') });
       return;
     }
     try {
       await changePassword({ current_password: passwordForm.current, new_password: passwordForm.next }).unwrap();
-      toast({ title: 'Password updated', description: 'Your password has been changed successfully.' });
+      toast({ 
+        title: t('settings.passwordUpdated', 'تم تحديث كلمة المرور'), 
+        description: t('settings.passwordUpdatedDesc', 'تم تغيير كلمة المرور بنجاح') 
+      });
       setPasswordForm({ current: '', next: '', confirm: '' });
       setPasswordErrors({ current: null, next: null, confirm: null });
     } catch (e) {
-      toast({ title: 'Failed to change password', description: 'Please check your current password and try again.' });
+      toast({ 
+        title: t('settings.passwordFailed', 'فشل تغيير كلمة المرور'), 
+        description: t('settings.passwordFailedDesc', 'يرجى التحقق من كلمة المرور الحالية والمحاولة مرة أخرى') 
+      });
     }
+  };
+
+  // مكون التبديل المخصص للغة العربية
+  const RtlSwitch = ({ checked, onCheckedChange, id }: { checked: boolean; onCheckedChange: (checked: boolean) => void; id?: string }) => {
+    return (
+      <div className="relative inline-flex items-center">
+        <button
+          id={id}
+          className={`peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+            checked ? 'bg-primary' : 'bg-input'
+          }`}
+          onClick={() => onCheckedChange(!checked)}
+          type="button"
+          role="switch"
+          aria-checked={checked}
+        >
+          <span
+            className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform ${
+              checked ? 'translate-x-5 rtl:-translate-x-5' : 'translate-x-0'
+            }`}
+          />
+        </button>
+      </div>
+    );
   };
 
   return (
     <div className="min-h-screen bg-gray-50" dir={direction}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+        <div className="mb-8 text-center md:text-start">
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center justify-center md:justify-start">
             <SettingsIcon className={`h-8 w-8 ${direction === 'rtl' ? 'ml-3' : 'mr-3'}`} />
-            <TranslatableText staticKey="settings.title">Settings</TranslatableText>
+            <TranslatableText staticKey="settings.title">الإعدادات</TranslatableText>
           </h1>
           <p className="text-gray-600 mt-2">
-            <TranslatableText staticKey="settings.subtitle">Manage your account settings and preferences</TranslatableText>
+            <TranslatableText staticKey="settings.subtitle">إدارة إعدادات حسابك وتفضيلاتك</TranslatableText>
           </p>
         </div>
 
         <div className="space-y-6">
           {/* Profile Section */}
-          <Card>
+          <Card className="text-center md:text-start">
             <CardHeader>
-              <CardTitle className="flex items-center">
+              <CardTitle className="flex items-center justify-center md:justify-start">
                 <User className={`h-5 w-5 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                <TranslatableText staticKey="settings.profile">Profile Information</TranslatableText>
+                <TranslatableText staticKey="settings.profile">معلومات الملف الشخصي</TranslatableText>
               </CardTitle>
-              <CardDescription>
-                <TranslatableText staticKey="settings.profileDesc">Update your personal information and profile details</TranslatableText>
+              <CardDescription className="text-center md:text-start">
+                <TranslatableText staticKey="settings.profileDesc">تحديث معلوماتك الشخصية وتفاصيل ملفك الشخصي</TranslatableText>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
                 <Avatar className="h-16 w-16">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="text-lg">{user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <div className="flex-1">
+                <div className="flex-1 text-center md:text-start">
                   <h3 className="font-semibold text-lg">{user.name}</h3>
                   <p className="text-gray-600">{user.email}</p>
-                  <p className="text-sm text-gray-500">Member since March 2022</p>
+                  <p className="text-sm text-gray-500">
+                    <TranslatableText staticKey="settings.memberSince">عضو منذ</TranslatableText> مارس 2022
+                  </p>
                 </div>
                 <EditProfileDialog trigger={
-                  <Button variant="outline">
+                  <Button variant="outline" className="mt-4 md:mt-0">
                     <SettingsIcon className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                    <TranslatableText staticKey="settings.editProfile">Edit Profile</TranslatableText>
+                    <TranslatableText staticKey="settings.editProfile">تعديل الملف</TranslatableText>
                   </Button>
                 } />
               </div>
@@ -146,65 +180,77 @@ const Settings = () => {
           {/* Notifications */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
+              <CardTitle className="flex items-center justify-center md:justify-start">
                 <Bell className={`h-5 w-5 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                <TranslatableText staticKey="settings.notifications">Notifications</TranslatableText>
+                <TranslatableText staticKey="settings.notifications">الإشعارات</TranslatableText>
               </CardTitle>
-              <CardDescription>
-                <TranslatableText staticKey="settings.notificationsDesc">Choose what notifications you want to receive</TranslatableText>
+              <CardDescription className="text-center md:text-start">
+                <TranslatableText staticKey="settings.notificationsDesc">اختر الإشعارات التي تريد تلقيها</TranslatableText>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label><TranslatableText staticKey="settings.email">Email Notifications</TranslatableText></Label>
+              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
+                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
+                  <Label><TranslatableText staticKey="settings.email">إشعارات البريد الإلكتروني</TranslatableText></Label>
                   <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.emailDesc">Receive notifications via email</TranslatableText>
+                    <TranslatableText staticKey="settings.emailDesc">تلقي الإشعارات عبر البريد الإلكتروني</TranslatableText>
                   </p>
                 </div>
-                <Switch
-                  checked={notifications.email}
-                  onCheckedChange={(value) => handleNotificationChange('email', value)}
-                />
+                <div className="order-1 md:order-2">
+                  <RtlSwitch
+                    checked={notifications.email}
+                    onCheckedChange={(value) => handleNotificationChange('email', value)}
+                    id="email-notifications"
+                  />
+                </div>
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label><TranslatableText staticKey="settings.push">Push Notifications</TranslatableText></Label>
+              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
+                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
+                  <Label><TranslatableText staticKey="settings.push">الإشعارات المنبثقة</TranslatableText></Label>
                   <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.pushDesc">Receive push notifications on your device</TranslatableText>
+                    <TranslatableText staticKey="settings.pushDesc">تلقي الإشعارات المنبثقة على جهازك</TranslatableText>
                   </p>
                 </div>
-                <Switch
-                  checked={notifications.push}
-                  onCheckedChange={(value) => handleNotificationChange('push', value)}
-                />
+                <div className="order-1 md:order-2">
+                  <RtlSwitch
+                    checked={notifications.push}
+                    onCheckedChange={(value) => handleNotificationChange('push', value)}
+                    id="push-notifications"
+                  />
+                </div>
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label><TranslatableText staticKey="settings.sms">SMS Notifications</TranslatableText></Label>
+              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
+                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
+                  <Label><TranslatableText staticKey="settings.sms">إشعارات الرسائل النصية</TranslatableText></Label>
                   <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.smsDesc">Receive notifications via SMS</TranslatableText>
+                    <TranslatableText staticKey="settings.smsDesc">تلقي الإشعارات عبر الرسائل النصية</TranslatableText>
                   </p>
                 </div>
-                <Switch
-                  checked={notifications.sms}
-                  onCheckedChange={(value) => handleNotificationChange('sms', value)}
-                />
+                <div className="order-1 md:order-2">
+                  <RtlSwitch
+                    checked={notifications.sms}
+                    onCheckedChange={(value) => handleNotificationChange('sms', value)}
+                    id="sms-notifications"
+                  />
+                </div>
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label><TranslatableText staticKey="settings.marketing">Marketing Emails</TranslatableText></Label>
+              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
+                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
+                  <Label><TranslatableText staticKey="settings.marketing">رسائل التسويق</TranslatableText></Label>
                   <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.marketingDesc">Receive promotional emails and updates</TranslatableText>
+                    <TranslatableText staticKey="settings.marketingDesc">تلقي رسائل البريد الإلكتروني الترويجية والتحديثات</TranslatableText>
                   </p>
                 </div>
-                <Switch
-                  checked={notifications.marketing}
-                  onCheckedChange={(value) => handleNotificationChange('marketing', value)}
-                />
+                <div className="order-1 md:order-2">
+                  <RtlSwitch
+                    checked={notifications.marketing}
+                    onCheckedChange={(value) => handleNotificationChange('marketing', value)}
+                    id="marketing-notifications"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -212,76 +258,79 @@ const Settings = () => {
           {/* Change Password */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
+              <CardTitle className="flex items-center justify-center md:justify-start">
                 <Lock className={`h-5 w-5 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                <TranslatableText staticKey="settings.password">Change Password</TranslatableText>
+                <TranslatableText staticKey="settings.password">تغيير كلمة المرور</TranslatableText>
               </CardTitle>
-              <CardDescription>
-                <TranslatableText staticKey="settings.passwordDesc">Update your password to keep your account secure</TranslatableText>
+              <CardDescription className="text-center md:text-start">
+                <TranslatableText staticKey="settings.passwordDesc">قم بتحديث كلمة المرور الخاصة بك للحفاظ على أمان حسابك</TranslatableText>
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handlePasswordSubmit} noValidate className="space-y-4 max-w-lg">
+              <form onSubmit={handlePasswordSubmit} noValidate className="space-y-4 max-w-lg mx-auto">
                 <div className="space-y-2">
-                  <Label htmlFor="current-password">
-                    <TranslatableText staticKey="settings.currentPassword">Current password</TranslatableText>
+                  <Label htmlFor="current-password" className="text-right w-full block">
+                    <TranslatableText staticKey="settings.currentPassword">كلمة المرور الحالية</TranslatableText>
                   </Label>
                   <Input
                     id="current-password"
                     type="password"
-                    placeholder={t('settings.currentPasswordPlaceholder', 'Enter your current password')}
+                    placeholder={t('settings.currentPasswordPlaceholder', 'أدخل كلمة المرور الحالية')}
                     value={passwordForm.current}
                     onChange={(e) => setPasswordForm(prev => ({ ...prev, current: e.target.value }))}
                     aria-invalid={!!passwordErrors.current}
                     aria-describedby="current-password-error"
                     required
                     dir={direction}
+                    className="text-right"
                   />
                   {passwordErrors.current && (
-                    <p id="current-password-error" className="text-sm text-red-600">{passwordErrors.current}</p>
+                    <p id="current-password-error" className="text-sm text-red-600 text-right">{passwordErrors.current}</p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="new-password">
-                    <TranslatableText staticKey="settings.newPassword">New password</TranslatableText>
+                  <Label htmlFor="new-password" className="text-right w-full block">
+                    <TranslatableText staticKey="settings.newPassword">كلمة المرور الجديدة</TranslatableText>
                   </Label>
                   <Input
                     id="new-password"
                     type="password"
-                    placeholder={t('settings.newPasswordPlaceholder', 'Enter a strong password')}
+                    placeholder={t('settings.newPasswordPlaceholder', 'أدخل كلمة مرور قوية')}
                     value={passwordForm.next}
                     onChange={(e) => setPasswordForm(prev => ({ ...prev, next: e.target.value }))}
                     aria-invalid={!!passwordErrors.next}
                     aria-describedby="new-password-error"
                     required
                     dir={direction}
+                    className="text-right"
                   />
                   {passwordErrors.next && (
-                    <p id="new-password-error" className="text-sm text-red-600">{passwordErrors.next}</p>
+                    <p id="new-password-error" className="text-sm text-red-600 text-right">{passwordErrors.next}</p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password">
-                    <TranslatableText staticKey="settings.confirmPassword">Confirm new password</TranslatableText>
+                  <Label htmlFor="confirm-password" className="text-right w-full block">
+                    <TranslatableText staticKey="settings.confirmPassword">تأكيد كلمة المرور الجديدة</TranslatableText>
                   </Label>
                   <Input
                     id="confirm-password"
                     type="password"
-                    placeholder={t('settings.confirmPasswordPlaceholder', 'Confirm your new password')}
+                    placeholder={t('settings.confirmPasswordPlaceholder', 'تأكيد كلمة المرور الجديدة')}
                     value={passwordForm.confirm}
                     onChange={(e) => setPasswordForm(prev => ({ ...prev, confirm: e.target.value }))}
                     aria-invalid={!!passwordErrors.confirm}
                     aria-describedby="confirm-password-error"
                     required
                     dir={direction}
+                    className="text-right"
                   />
                   {passwordErrors.confirm && (
-                    <p id="confirm-password-error" className="text-sm text-red-600">{passwordErrors.confirm}</p>
+                    <p id="confirm-password-error" className="text-sm text-red-600 text-right">{passwordErrors.confirm}</p>
                   )}
                 </div>
-                <div className={`flex ${direction === 'rtl' ? 'justify-start' : 'justify-end'}`}>
+                <div className="flex justify-center md:justify-end">
                   <Button type="submit" disabled={isChanging}>
-                    <TranslatableText staticKey="settings.updatePassword">Update Password</TranslatableText>
+                    <TranslatableText staticKey="settings.updatePassword">تحديث كلمة المرور</TranslatableText>
                   </Button>
                 </div>
               </form>
@@ -291,52 +340,61 @@ const Settings = () => {
           {/* Privacy Settings */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
+              <CardTitle className="flex items-center justify-center md:justify-start">
                 <Eye className={`h-5 w-5 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                <TranslatableText staticKey="settings.privacy">Privacy & Security</TranslatableText>
+                <TranslatableText staticKey="settings.privacy">الخصوصية والأمان</TranslatableText>
               </CardTitle>
-              <CardDescription>
-                <TranslatableText staticKey="settings.privacyDesc">Control who can see your information</TranslatableText>
+              <CardDescription className="text-center md:text-start">
+                <TranslatableText staticKey="settings.privacyDesc">التحكم في من يمكنه رؤية معلوماتك</TranslatableText>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label><TranslatableText staticKey="settings.publicProfile">Public Profile</TranslatableText></Label>
+              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
+                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
+                  <Label><TranslatableText staticKey="settings.publicProfile">ملف تعريف عام</TranslatableText></Label>
                   <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.publicProfileDesc">Make your profile visible to everyone</TranslatableText>
+                    <TranslatableText staticKey="settings.publicProfileDesc">اجعل ملفك الشخصي مرئيًا للجميع</TranslatableText>
                   </p>
                 </div>
-                <Switch
-                  checked={privacy.profilePublic}
-                  onCheckedChange={(value) => handlePrivacyChange('profilePublic', value)}
-                />
+                <div className="order-1 md:order-2">
+                  <RtlSwitch
+                    checked={privacy.profilePublic}
+                    onCheckedChange={(value) => handlePrivacyChange('profilePublic', value)}
+                    id="public-profile"
+                  />
+                </div>
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label><TranslatableText staticKey="settings.showLocation">Show Location</TranslatableText></Label>
+              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
+                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
+                  <Label><TranslatableText staticKey="settings.showLocation">إظهار الموقع</TranslatableText></Label>
                   <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.showLocationDesc">Display your location on your profile</TranslatableText>
+                    <TranslatableText staticKey="settings.showLocationDesc">عرض موقعك على ملفك الشخصي</TranslatableText>
                   </p>
                 </div>
-                <Switch
-                  checked={privacy.showLocation}
-                  onCheckedChange={(value) => handlePrivacyChange('showLocation', value)}
-                />
+                <div className="order-1 md:order-2">
+                  <RtlSwitch
+                    checked={privacy.showLocation}
+                    onCheckedChange={(value) => handlePrivacyChange('showLocation', value)}
+                    id="show-location"
+                  />
+                </div>
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label><TranslatableText staticKey="settings.showEmail">Show Email</TranslatableText></Label>
+              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
+                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
+                  <Label><TranslatableText staticKey="settings.showEmail">إظهار البريد الإلكتروني</TranslatableText></Label>
                   <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.showEmailDesc">Make your email visible to other users</TranslatableText>
+                    <TranslatableText staticKey="settings.showEmailDesc">اجعل بريدك الإلكتروني مرئيًا للمستخدمين الآخرين</TranslatableText>
                   </p>
                 </div>
-                <Switch
-                  checked={privacy.showEmail}
-                  onCheckedChange={(value) => handlePrivacyChange('showEmail', value)}
-                />
+                <div className="order-1 md:order-2">
+                  <RtlSwitch
+                    checked={privacy.showEmail}
+                    onCheckedChange={(value) => handlePrivacyChange('showEmail', value)}
+                    id="show-email"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -347,46 +405,46 @@ const Settings = () => {
           {/* Account Actions */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center text-red-600">
+              <CardTitle className="flex items-center text-red-600 justify-center md:justify-start">
                 <Trash2 className={`h-5 w-5 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                <TranslatableText staticKey="settings.danger">Danger Zone</TranslatableText>
+                <TranslatableText staticKey="settings.danger">منطقة الخطر</TranslatableText>
               </CardTitle>
-              <CardDescription>
-                <TranslatableText staticKey="settings.dangerDesc">Irreversible and destructive actions</TranslatableText>
+              <CardDescription className="text-center md:text-start">
+                <TranslatableText staticKey="settings.dangerDesc">إجراءات لا رجعة فيها وتدميرية</TranslatableText>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50">
-                <div>
+              <div className="flex flex-col md:flex-row items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50">
+                <div className="text-center md:text-start mb-4 md:mb-0">
                   <h4 className="font-semibold text-red-800">
-                    <TranslatableText staticKey="settings.deleteAccount">Delete Account</TranslatableText>
+                    <TranslatableText staticKey="settings.deleteAccount">حذف الحساب</TranslatableText>
                   </h4>
                   <p className="text-sm text-red-600">
-                    <TranslatableText staticKey="settings.deleteAccountDesc">Permanently delete your account and all data</TranslatableText>
+                    <TranslatableText staticKey="settings.deleteAccountDesc">احذف حسابك وبياناتك بشكل دائم</TranslatableText>
                   </p>
                 </div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive">
                       <Trash2 className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                      <TranslatableText staticKey="settings.deleteAccount">Delete Account</TranslatableText>
+                      <TranslatableText staticKey="settings.deleteAccount">حذف الحساب</TranslatableText>
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent>
+                  <AlertDialogContent dir={direction}>
                     <AlertDialogHeader>
                       <AlertDialogTitle>
-                        <TranslatableText staticKey="settings.deleteConfirmTitle">Are you absolutely sure?</TranslatableText>
+                        <TranslatableText staticKey="settings.deleteConfirmTitle">هل أنت متأكد تمامًا؟</TranslatableText>
                       </AlertDialogTitle>
                       <AlertDialogDescription>
-                        <TranslatableText staticKey="settings.deleteConfirmDesc">This action cannot be undone. This will permanently delete your account and remove your data from our servers.</TranslatableText>
+                        <TranslatableText staticKey="settings.deleteConfirmDesc">لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف حسابك بشكل دائم وإزالة بياناتك من خوادمنا.</TranslatableText>
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>
-                        <TranslatableText staticKey="common.cancel">Cancel</TranslatableText>
+                        <TranslatableText staticKey="common.cancel">إلغاء</TranslatableText>
                       </AlertDialogCancel>
                       <AlertDialogAction onClick={handleDeleteAccount}>
-                        <TranslatableText staticKey="common.delete">Delete</TranslatableText>
+                        <TranslatableText staticKey="common.delete">حذف</TranslatableText>
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -401,7 +459,7 @@ const Settings = () => {
               <div className="flex items-center justify-center">
                 <Button variant="outline" onClick={logout} className="w-full max-w-sm">
                   <LogOut className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                  <TranslatableText staticKey="settings.signOut">Sign Out</TranslatableText>
+                  <TranslatableText staticKey="settings.signOut">تسجيل الخروج</TranslatableText>
                 </Button>
               </div>
             </CardContent>

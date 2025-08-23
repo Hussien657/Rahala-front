@@ -254,11 +254,7 @@ const Profile = () => {
                   <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
                   <AvatarFallback className="text-2xl">{currentUser.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <div className="absolute bottom-2 right-2">
-                  <Button size="sm" className="rounded-full h-8 w-8 p-0">
-                    <Edit3 className="h-4 w-4" />
-                  </Button>
-                </div>
+                {/* تمت إزالة زر التحرير هنا */}
               </div>
 
               {/* User Info */}

@@ -21,7 +21,8 @@ import {
   X,
   LogOut,
   Settings,
-  Shield
+  Shield,
+  Crown
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -47,6 +48,7 @@ const Navbar = () => {
     { icon: Compass, label: t('nav.explore'), path: '/explore' },
     ...(isAuthenticated ? [
       { icon: Bell, label: t('nav.notifications'), path: '/notifications' },
+      { icon: Crown, label: t('nav.subscription', 'الاشتراكات'), path: '/subscription-plans' },
     ] : []),
   ];
 
@@ -128,13 +130,6 @@ const Navbar = () => {
 
             {isAuthenticated ? (
               <>
-                <Button asChild>
-                  <Link to="/create-trip">
-                    <PlusCircle className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                    <TranslatableText staticKey="nav.sharetrip">Share Trip</TranslatableText>
-                  </Link>
-                </Button>
-
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -178,6 +173,12 @@ const Navbar = () => {
                       <Link to="/notifications">
                         <Bell className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                         <TranslatableText staticKey="nav.notifications">Notifications</TranslatableText>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/subscription-status">
+                        <Crown className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                        <TranslatableText staticKey="nav.subscription">الاشتراكات</TranslatableText>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -265,16 +266,6 @@ const Navbar = () => {
                     <User className="h-5 w-5" />
                     <span>
                       <TranslatableText staticKey="nav.profile">Profile</TranslatableText>
-                    </span>
-                  </Link>
-                  <Link
-                    to="/create-trip"
-                    className="block px-3 py-2 rounded-md text-base font-medium bg-primary text-primary-foreground flex items-center space-x-2"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <PlusCircle className="h-5 w-5" />
-                    <span>
-                      <TranslatableText staticKey="nav.sharetrip">Share Trip</TranslatableText>
                     </span>
                   </Link>
                 </div>

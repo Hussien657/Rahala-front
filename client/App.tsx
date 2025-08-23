@@ -22,6 +22,10 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import GradientDemo from "./pages/GradientDemo";
 import HoverGradientExamples from "./components/HoverGradientExamples";
+import SubscriptionPlans from "./pages/SubscriptionPlans";
+import Checkout from "./pages/Checkout";
+import SubscriptionStatus from "./pages/SubscriptionStatus";
+import PaymentResult from "./pages/PaymentResult";
 
 function AppLayout() {
   const location = useLocation();
@@ -56,6 +60,10 @@ function AppLayout() {
           <Route path="/edit-trip/:tripId" element={<ProtectedRoute><PlaceholderPage pageTitle="Edit Trip" /></ProtectedRoute>} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/subscription-plans" element={<ProtectedRoute><SubscriptionPlans /></ProtectedRoute>} />
+          <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+          <Route path="/subscription-status" element={<ProtectedRoute><SubscriptionStatus /></ProtectedRoute>} />
+          <Route path="/payment-result" element={<ProtectedRoute><PaymentResult /></ProtectedRoute>} />
           <Route path="/gradient-demo" element={<GradientDemo />} />
           <Route path="/gradient-examples" element={<HoverGradientExamples />} />
           <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />

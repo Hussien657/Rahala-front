@@ -1,118 +1,131 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Heart, MessageCircle, Share2, MapPin, Star, Calendar } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent } from './ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Badge } from './ui/badge';
-import { cn } from '@/lib/utils';
-import { useGetTripStatsQuery, useLikeTripMutation, useUnlikeTripMutation } from '@/store/interactionsApi';
-import { toast } from '@/components/ui/use-toast';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import TranslatableText from '@/components/TranslatableText';
 import { useLanguage } from '@/contexts/LanguageContext';
-import TranslatableText from './TranslatableText';
+import {
+  Heart,
+  MessageCircle,
+  Copy,
+  MapPin,
+  Calendar,
+  Star,
+  Clock,
+  Check
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import TourismInfoCard from './TourismInfoCard';
 
-interface TripCardProps {
-  trip: {
-    id: string;
-    title: string;
-    description: string;
-    images: string[];
-    location: {
-      country: string;
-      city: string;
-    };
-    category: string;
-    rating: number;
-    duration: string;
-    author: {
-      id: string;
-      name: string;
-      avatar?: string;
-    };
-    likes: number;
-    comments: number;
-    isLiked?: boolean;
-    createdAt: string;
+interface Trip {
+  id: string;
+  title: string;
+  description: string;
+  images: string[];
+  location: {
+    country: string;
+    city: string;
   };
-  variant?: 'default' | 'compact';
+  category: string;
+  rating: number;
+  duration: string;
+  author: {
+    id: string;
+    name: string;
+    avatar?: string;
+  };
+  likes: number;
+  comments: number;
+  isLiked: boolean;
+  createdAt: string;
+  // معلومات AI السياحية
+  tourismInfo?: {
+    description: string;
+    recommended_places: string[];
+    warnings: string[];
+    best_time_to_visit: string;
+    local_tips: string[];
+    currency: string;
+    language: string;
+  };
+  country?: string;
+  city?: string;
 }
 
-const TripCard = ({ trip, variant = 'default' }: TripCardProps) => {
-  const isCompact = variant === 'compact';
-  const [isLiked, setIsLiked] = useState(trip.isLiked || false);
-  const [likesCount, setLikesCount] = useState(trip.likes);
-  const [commentsCount, setCommentsCount] = useState(trip.comments);
+interface TripCardProps {
+  trip: Trip;
+}
 
-  const { data: stats } = useGetTripStatsQuery(Number(trip.id) || trip.id);
+const TripCard = ({ trip }: TripCardProps) => {
+  const [isLiked, setIsLiked] = useState(trip.isLiked);
+  const [likesCount, setLikesCount] = useState(trip.likes);
+  const [copied, setCopied] = useState(false);
   const { direction, t } = useLanguage();
 
-  const [likeTrip, { isLoading: likeLoading }] = useLikeTripMutation();
-  const [unlikeTrip, { isLoading: unlikeLoading }] = useUnlikeTripMutation();
-
-  const handleLike = async () => {
-    const tripNumericId = Number(trip.id);
-    // optimistic update
-    const nextLiked = !isLiked;
-    setIsLiked(nextLiked);
-    setLikesCount(prev => nextLiked ? prev + 1 : Math.max(0, prev - 1));
-
-    try {
-      if (nextLiked) {
-        await likeTrip({ trip_id: tripNumericId }).unwrap();
-      } else {
-        await unlikeTrip({ trip_id: tripNumericId }).unwrap();
-      }
-    } catch (e) {
-      // revert on failure
-      setIsLiked(!nextLiked);
-      setLikesCount(prev => !nextLiked ? prev + 1 : Math.max(0, prev - 1));
-      console.error('Failed to toggle like', e);
+  const handleLikeToggle = () => {
+    setIsLiked(!isLiked);
+    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+    
+    // Here you would typically make an API call to update the like status
+    // For now, we'll just show a toast message
+    if (!isLiked) {
+      toast.success(t('tripCard.likedTrip', 'Trip liked!'));
+    } else {
+      toast.success(t('tripCard.unlikedTrip', 'Trip unliked!'));
     }
   };
 
-  useEffect(() => {
-    if (stats) {
-      setIsLiked(stats.is_liked);
-      setLikesCount(stats.likes_count);
-      setCommentsCount(stats.comments_count);
+  const handleCopy = async () => {
+    try {
+      const tripUrl = `${window.location.origin}/trip/${trip.id}`;
+      await navigator.clipboard.writeText(tripUrl);
+      setCopied(true);
+      toast.success(t('tripCard.linkCopied', 'Link copied to clipboard!'));
+      
+      // Reset the copied state after 2 seconds
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast.error(t('tripCard.copyFailed', 'Failed to copy link'));
     }
-  }, [stats]);
+  };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: trip.title,
-        text: trip.description,
-        url: `/trip/${trip.id}`
-      });
-    } else {
-      // Fallback for browsers that don't support Web Share API
-      navigator.clipboard.writeText(`${t('tripCard.checkOutTrip', 'Check out this amazing trip:')} ${trip.title} - ${window.location.origin}/trip/${trip.id}`);
-      toast({
-        title: t('tripCard.copied', 'Copied'),
-        description: t('tripCard.linkCopied', 'Link copied to clipboard.')
-      });
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString(
+        direction === 'rtl' ? 'ar-EG' : 'en-US',
+        { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric' 
+        }
+      );
+    } catch {
+      return dateString;
     }
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300" dir={direction}>
       {/* Trip Image */}
-      <div className={cn("relative overflow-hidden", isCompact ? "h-48" : "h-64")}>
+      <div className="relative h-64 overflow-hidden">
         <img
-          src={trip.images[0]}
+          src={trip.images[0] || 'https://via.placeholder.com/800x600?text=Trip'}
           alt={trip.title}
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
         />
-        <div className={`absolute top-3 ${direction === 'rtl' ? 'left-3' : 'right-3'}`}>
-          <Badge variant="secondary" className="bg-black/50 text-white border-0">
+        <div className="absolute top-4 left-4">
+          <Badge variant="secondary" className="bg-white/90 text-gray-800">
             {trip.category}
           </Badge>
         </div>
-        <div className={`absolute bottom-3 ${direction === 'rtl' ? 'right-3' : 'left-3'} flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1 text-white`}>
-          <MapPin className="h-4 w-4" />
-          <span className="text-sm font-medium">{trip.location.city}, {trip.location.country}</span>
-        </div>
+        {trip.rating > 0 && (
+          <div className="absolute top-4 right-4 flex items-center bg-white/90 rounded-full px-2 py-1">
+            <Star className="h-3 w-3 text-yellow-500 fill-current" />
+            <span className="text-xs font-medium ml-1">{trip.rating}</span>
+          </div>
+        )}
       </div>
 
       <CardContent className="p-4">
@@ -120,91 +133,112 @@ const TripCard = ({ trip, variant = 'default' }: TripCardProps) => {
         <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-3 mb-3`}>
           <Avatar className="h-8 w-8">
             <AvatarImage src={trip.author.avatar} alt={trip.author.name} />
-            <AvatarFallback>{trip.author.name.charAt(0)}</AvatarFallback>
+            <AvatarFallback>
+              {trip.author.name.charAt(0).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <Link
+            <Link 
               to={`/profile/${trip.author.id}`}
-              className="text-sm font-medium hover:text-primary transition-colors"
+              className="font-medium text-sm hover:text-primary transition-colors"
             >
               {trip.author.name}
             </Link>
-            <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2 text-xs text-muted-foreground`}>
+            <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1 text-xs text-gray-500`}>
               <Calendar className="h-3 w-3" />
-              <span>{new Date(trip.createdAt).toLocaleDateString()}</span>
+              <span>{formatDate(trip.createdAt)}</span>
             </div>
           </div>
         </div>
 
         {/* Trip Info */}
-        <div className="space-y-2">
-          <Link
-            to={`/trip/${trip.id}`}
-            className="block"
-          >
-            <h3 className="font-semibold text-lg hover:text-primary transition-colors line-clamp-2" dir={direction}>
-              {trip.title}
-            </h3>
-          </Link>
-
-          {!isCompact && (
-            <p className="text-muted-foreground text-sm line-clamp-2" dir={direction}>
-              {trip.description}
-            </p>
-          )}
-
-          <div className="flex items-center justify-between text-sm">
-            <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-4`}>
-              <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium">{trip.rating}</span>
-              </div>
-              <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground">{trip.duration}</span>
-              </div>
+        <div className="mb-3">
+          <h3 className="font-semibold text-lg mb-1 line-clamp-2">
+            {trip.title}
+          </h3>
+          <p className="text-gray-600 text-sm line-clamp-2 mb-2">
+            {trip.description}
+          </p>
+          
+          <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-4 text-sm text-gray-500`}>
+            <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
+              <MapPin className="h-3 w-3" />
+              <span>{trip.location.city}, {trip.location.country}</span>
             </div>
+            {trip.duration !== '—' && (
+              <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
+                <Clock className="h-3 w-3" />
+                <span>{trip.duration}</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center justify-between pt-3 border-t mt-3">
+        {/* Tourism AI Info Card */}
+        {trip.tourismInfo && (
+          <div className="mb-4">
+            <TourismInfoCard 
+              tourismInfo={trip.tourismInfo}
+              country={trip.country || trip.location.country}
+              city={trip.city || trip.location.city}
+            />
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className={`flex items-center justify-between pt-3 border-t border-gray-100`}>
           <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-4`}>
+            {/* Like Button */}
             <Button
               variant="ghost"
               size="sm"
-              className={cn(
-                "p-0 h-auto font-normal hover:scale-105 transition-transform",
-                isLiked ? "text-red-500" : "text-muted-foreground"
-              )}
-              onClick={handleLike}
-              disabled={likeLoading || unlikeLoading}
+              onClick={handleLikeToggle}
+              className={`${direction === 'rtl' ? 'flex-row-reverse' : ''} flex items-center space-x-1 hover:bg-red-50 hover:text-red-600 transition-colors ${
+                isLiked ? 'text-red-600' : 'text-gray-600'
+              }`}
             >
-              <Heart className={cn(`h-4 w-4 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`, isLiked && "fill-current")} />
-              {likesCount}
+              <Heart 
+                className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} 
+              />
+              <span className="text-sm font-medium">{likesCount}</span>
             </Button>
 
+            {/* Comments Button */}
             <Button
               variant="ghost"
               size="sm"
-              className="p-0 h-auto font-normal text-muted-foreground hover:text-primary transition-colors"
               asChild
+              className={`${direction === 'rtl' ? 'flex-row-reverse' : ''} flex items-center space-x-1 hover:bg-blue-50 hover:text-blue-600 transition-colors text-gray-600`}
             >
-              <Link to={`/trip/${trip.id}`}>
-                <MessageCircle className={`h-4 w-4 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`} />
-                {commentsCount}
+              <Link to={`/trip/${trip.id}#comments`}>
+                <MessageCircle className="h-4 w-4" />
+                <span className="text-sm font-medium">{trip.comments}</span>
               </Link>
             </Button>
           </div>
 
+          {/* Copy Button */}
           <Button
             variant="ghost"
             size="sm"
-            className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors"
-            onClick={handleShare}
+            onClick={handleCopy}
+            className={`${direction === 'rtl' ? 'flex-row-reverse' : ''} flex items-center space-x-1 hover:bg-green-50 hover:text-green-600 transition-colors text-gray-600`}
           >
-            <Share2 className={`h-4 w-4 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`} />
-            <TranslatableText staticKey="tripCard.share">Share</TranslatableText>
+            {copied ? (
+              <>
+                <Check className="h-4 w-4" />
+                <span className="text-sm font-medium">
+                  <TranslatableText staticKey="tripCard.copied">Copied</TranslatableText>
+                </span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-4 w-4" />
+                <span className="text-sm font-medium">
+                  <TranslatableText staticKey="tripCard.copy">Copy</TranslatableText>
+                </span>
+              </>
+            )}
           </Button>
         </div>
       </CardContent>

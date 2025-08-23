@@ -23,17 +23,20 @@ import { AlertCircle } from 'lucide-react';
 const Feed = () => {
   const [activeCategory, setActiveCategory] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const { data, isLoading, isError, refetch } = useGetFeedQuery();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError, refetch } = useGetFeedQuery({ page });
   const { direction, t } = useLanguage();
 
+  // جمع جميع الرحلات من الصفحات المختلفة
+  const allTrips = useMemo(() => {
+    if (!data) return [];
+    
+    // إذا كان لدينا بيانات من صفحات متعددة، نقوم بدمجها
+    return data.results || [];
+  }, [data]);
+
   const handleLoadMore = () => {
-    setIsLoadingMore(true);
-    // Simulate loading more content
-    setTimeout(() => {
-      setIsLoadingMore(false);
-      // In a real app, you'd fetch more trips here
-    }, 1000);
+    setPage(prevPage => prevPage + 1);
   };
 
   const categories = [
@@ -41,13 +44,15 @@ const Feed = () => {
   ];
 
   const feedTrips = useMemo(() => {
-    const items = data?.results || [];
-    return items.map((it) => ({
+    return allTrips.map((it) => ({
       id: String(it.id),
       title: it.caption,
       description: it.caption,
       images: it.images?.length ? [it.images[0].image!] : ['https://via.placeholder.com/800x600?text=Trip'],
-      location: { country: it.location, city: it.location },
+      location: { 
+        country: it.country || it.location, 
+        city: it.city || it.location 
+      },
       category: it.tags?.[0]?.tripTag || 'Trip',
       rating: 5,
       duration: '—',
@@ -60,8 +65,12 @@ const Feed = () => {
       comments: 0,
       isLiked: false,
       createdAt: it.created_at,
+      // إضافة معلومات AI السياحية
+      tourismInfo: it.tourism_info,
+      country: it.country,
+      city: it.city,
     }));
-  }, [data]);
+  }, [allTrips]);
 
   // Mock suggested users
   const suggestedUsers = [
@@ -91,11 +100,14 @@ const Feed = () => {
     }
   ];
 
+  // التحقق مما إذا كان هناك المزيد من الصفحات للتحميل
+  const hasMorePages = data?.next !== null;
+
   return (
     <div className="min-h-screen bg-gray-50" dir={direction}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Left Sidebar - Categories */}
+          {/* Left Sidebar - Create Post Button */}
           <div className="lg:col-span-1 space-y-6">
             {/* Create Post Button */}
             <Card>
@@ -106,30 +118,6 @@ const Feed = () => {
                     <TranslatableText staticKey="feed.shareYourTrip">Share Your Trip</TranslatableText>
                   </Link>
                 </Button>
-              </CardContent>
-            </Card>
-
-            {/* Categories */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center mb-4">
-                  <MapPin className={`h-5 w-5 ${direction === 'rtl' ? 'ml-2' : 'mr-2'} text-primary`} />
-                  <h3 className="font-semibold">
-                    <TranslatableText staticKey="feed.categories">Categories</TranslatableText>
-                  </h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {categories.map((category) => (
-                    <Badge
-                      key={category}
-                      variant={activeCategory === category ? "default" : "outline"}
-                      className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                      onClick={() => setActiveCategory(activeCategory === category ? '' : category)}
-                    >
-                      <TranslatableText staticKey={`categories.${category.toLowerCase()}`}>{category}</TranslatableText>
-                    </Badge>
-                  ))}
-                </div>
               </CardContent>
             </Card>
           </div>
@@ -159,7 +147,7 @@ const Feed = () => {
 
             {/* Trip Posts */}
             <div className="space-y-6">
-              {isLoading && (
+              {isLoading && page === 1 && (
                 <div className="space-y-4">
                   {[...Array(3)].map((_, i) => (
                     <Card key={i}>
@@ -227,23 +215,51 @@ const Feed = () => {
                   );
                 }
 
-                return filteredTrips.map((trip) => (
-                  <TripCard key={trip.id} trip={trip} />
-                ));
+                return (
+                  <>
+                    {filteredTrips.map((trip) => (
+                      <TripCard key={trip.id} trip={trip} />
+                    ))}
+                    
+                    {/* عرض مؤشر التحميل عند تحميل الصفحات الإضافية */}
+                    {isLoading && page > 1 && (
+                      <div className="space-y-4">
+                        {[...Array(2)].map((_, i) => (
+                          <Card key={`skeleton-${i}`}>
+                            <CardContent className="p-0">
+                              <Skeleton className="h-64 w-full" />
+                              <div className="p-4 space-y-3">
+                                <Skeleton className="h-6 w-2/3" />
+                                <Skeleton className="h-4 w-full" />
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
               })()}
             </div>
 
-            {/* Load More Button */}
-            <div className="text-center">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handleLoadMore}
-                disabled={isLoadingMore}
-              >
-                <TranslatableText staticKey={isLoadingMore ? 'feed.loading' : 'feed.loadMoreAdventures'}>{isLoadingMore ? 'Loading...' : 'Load More Adventures'}</TranslatableText>
-              </Button>
-            </div>
+            {/* Load More Button - يظهر فقط إذا كان هناك المزيد من الصفحات */}
+            {hasMorePages && (
+              <div className="text-center mt-6">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={handleLoadMore}
+                  disabled={isLoading}
+                  className="min-w-[200px]"
+                >
+                  {isLoading ? (
+                    <TranslatableText staticKey="feed.loading">Loading...</TranslatableText>
+                  ) : (
+                    <TranslatableText staticKey="feed.loadMoreAdventures">Load More Adventures</TranslatableText>
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Right Sidebar - Suggested Users & Trending */}
@@ -269,35 +285,6 @@ const Feed = () => {
                 </Button>
               </CardContent>
             </Card>
-
-            {/* Trending Destinations */}
-           {/* <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center mb-4">
-                  <TrendingUp className="h-5 w-5 mr-2 text-primary" />
-                  <h3 className="font-semibold">Trending Destinations</h3>
-                </div>
-                <div className="space-y-3">
-                  {[
-                    { name: 'Bali, Indonesia', posts: 234 },
-                    { name: 'Santorini, Greece', posts: 189 },
-                    { name: 'Kyoto, Japan', posts: 156 },
-                    { name: 'Machu Picchu, Peru', posts: 145 },
-                    { name: 'Banff, Canada', posts: 132 }
-                  ].map((destination, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-sm">{destination.name}</p>
-                        <p className="text-xs text-muted-foreground">{destination.posts} posts</p>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        #{index + 1}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card> */}
           </div>
         </div>
       </div>

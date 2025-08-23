@@ -56,9 +56,20 @@ const Login = () => {
       toast({ title: t('login.correctFields', 'Please correct the highlighted fields') });
       return;
     }
+    
+    console.log('Attempting login with:', { email: formData.email, password: formData.password });
+    
     try {
+      console.log('Calling login API...');
       const res = await login({ email: formData.email, password: formData.password }).unwrap();
+      console.log('Login successful:', res);
+      
       dispatch(setCredentials({ access: res.access, refresh: res.refresh, user: res.user }));
+      
+      // Save tokens to localStorage
+      localStorage.setItem('accessToken', res.access);
+      localStorage.setItem('refreshToken', res.refresh);
+      
       // Sync with AuthContext for the existing app structure
       authLogin({
         id: String(res.user.id),
@@ -67,13 +78,32 @@ const Login = () => {
         role: 'user',
         isVerified: res.user.is_verified,
       });
+      
+      console.log('Navigation to:', formData.loginAsAdmin ? '/admin' : '/feed');
       navigate(formData.loginAsAdmin ? '/admin' : '/feed');
-    } catch (err) {
+      
+    } catch (err: any) {
+      console.error('Login failed with error:', err);
+      console.error('Error details:', {
+        status: err?.status,
+        data: err?.data,
+        message: err?.message,
+        error: err?.error
+      });
+      
+      let errorMessage = 'فشل في تسجيل الدخول';
+      if (err?.data?.detail) {
+        errorMessage = err.data.detail;
+      } else if (err?.error?.data?.detail) {
+        errorMessage = err.error.data.detail;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+      
       toast({
         title: t('login.loginFailed', 'Login failed'),
-        description: t('login.loginFailedDesc', 'Please check your credentials and try again.')
+        description: errorMessage
       });
-      console.error(err);
     }
   };
 

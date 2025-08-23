@@ -10,7 +10,8 @@
     "signin": "Sign In",
     "joinnow": "Join Now",
     "sharetrip": "Share Trip",
-    "search": "Search destinations..."
+    "search": "Search destinations...",
+    "subscription": "Subscriptions"
   },
   "feed": {
     "title": "Travel Feed",
@@ -113,7 +114,8 @@
     "success": "Success",
     "warning": "Warning",
     "info": "Info",
-    "pleaseWait": "Please wait while we verify your email address."
+    "pleaseWait": "Please wait while we verify your email address.",
+    "back": "Back"
   },
   "user": {
     "trips": "trips",
@@ -481,5 +483,52 @@
     "backToSignIn": "Back to Sign In",
     "verificationSuccess": "Your email has been successfully verified!",
     "verificationError": "We couldn't verify your email. Please try again."
+  },
+  "common": {
+    "back": "Back"
+  },
+  "subscription": {
+    "plansTitle": "Subscription Plans",
+    "plansSubtitle": "Choose the plan that suits you and get exclusive features",
+    "currentStatus": "Current Subscription Status",
+    "free": "Free",
+    "premium": "Premium",
+    "pro": "Pro",
+    "daysRemaining": "{{days}} days remaining",
+    "paidFeatures": "Paid Subscription Features",
+    "paidFeaturesDesc": "Get an enhanced experience with the following features",
+    "verifiedBadge": "Blue verification badge",
+    "prioritySupport": "Priority support",
+    "advancedFilters": "Advanced search filters",
+    "tripPromotion": "Trip promotion capability",
+    "detailedStats": "Detailed statistics",
+    "highQualityPhotos": "High-quality photo uploads",
+    "customNotifications": "Custom notifications",
+    "earlyAccess": "Early access to new features",
+    "faq": "Frequently Asked Questions",
+    "faq1": {
+      "question": "How can I cancel my subscription?",
+      "answer": "You can cancel your subscription at any time from the subscription management page. The subscription will continue until the end of the paid period."
+    },
+    "faq2": {
+      "question": "Can I upgrade my plan?",
+      "answer": "Yes, you can upgrade your plan at any time and the price difference will be calculated."
+    },
+    "faq3": {
+      "question": "What payment methods are available?",
+      "answer": "We accept all credit and debit cards, direct debit, and electronic wallets through PayMob."
+    },
+    "success": "Subscription Successful",
+    "error": "Subscription Error",
+    "errorMessage": "An error occurred while processing the subscription",
+    "loading": "Loading subscription plans...",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "mostPopular": "Most Popular",
+    "saveTwoMonths": "Save 2 months free",
+    "currentPlan": "Current Plan",
+    "processing": "Processing...",
+    "subscribeNow": "Subscribe Now",
+    "subscribedToThisPlan": "You are subscribed to this plan"
   }
 }
