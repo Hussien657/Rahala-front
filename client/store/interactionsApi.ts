@@ -156,7 +156,7 @@ export const interactionsApi = baseApi.injectEndpoints({
         unlikeTrip: build.mutation<unknown, { trip_id: number }>({
             query: (body) => ({
                 url: 'api/interactions/unlike/',
-                method: 'POST',
+                method: 'DELETE',
                 body,
             }),
             invalidatesTags: ['Feed'],
@@ -172,7 +172,7 @@ export const interactionsApi = baseApi.injectEndpoints({
         unsaveTrip: build.mutation<unknown, { trip_id: number }>({
             query: (body) => ({
                 url: 'api/interactions/unsave/',
-                method: 'POST',
+                method: 'DELETE',
                 body,
             }),
             invalidatesTags: ['Feed'],

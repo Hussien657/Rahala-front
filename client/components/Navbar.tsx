@@ -47,6 +47,7 @@ const Navbar = () => {
   const navItems = [
     { icon: Heart, label: t('nav.feed'), path: '/feed' },
     { icon: Compass, label: t('nav.explore'), path: '/explore' },
+    { icon: Shield, label: t('nav.subscriptions', 'Subscriptions'), path: '/subscriptions' },
     ...(isAuthenticated ? [
       { icon: Bell, label: t('nav.notifications'), path: '/notifications' },
     ] : []),
@@ -144,11 +145,10 @@ const Navbar = () => {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className={`relative h-10 w-10 rounded-full transition-all duration-300 ${
-                        isActive('/profile') || isActive('/settings')
-                          ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
-                          : 'hover:ring-2 hover:ring-primary/50 hover:ring-offset-2 hover:ring-offset-background'
-                      }`}
+                      className={`relative h-10 w-10 rounded-full transition-all duration-300 ${isActive('/profile') || isActive('/settings')
+                        ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+                        : 'hover:ring-2 hover:ring-primary/50 hover:ring-offset-2 hover:ring-offset-background'
+                        }`}
                     >
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={user?.avatar} alt={user?.name} />

@@ -204,6 +204,207 @@ const Explore = () => {
                   showPopular={true}
                   enableRateLimitHandling={true}
                 />
+                {/* Main Content */}
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="my-8">
+                    {/* <TabsTrigger value="destinations">
+                      <TranslatableText staticKey="explore.destinations">Destinations</TranslatableText>
+                    </TabsTrigger> */}
+                    <TabsTrigger value="trips">
+                      <TranslatableText staticKey="explore.featuredTrips">Featured Trips</TranslatableText>
+                    </TabsTrigger>
+                    <TabsTrigger value="travelers">
+                      <TranslatableText staticKey="explore.topTravelers">Top Travelers</TranslatableText>
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* Destinations Tab */}
+                  <TabsContent value="destinations">
+                    {/* Categories */}
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold mb-4">
+                        <TranslatableText staticKey="explore.browseByCategory">Browse by Category</TranslatableText>
+                      </h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        {categories.map((category) => (
+                          <Card
+                            key={category.id}
+                            className={`cursor-pointer transition-all hover:shadow-md ${activeCategory === category.id ? 'ring-2 ring-primary' : ''
+                              }`}
+                            onClick={() => setActiveCategory(category.id)}
+                          >
+                            <CardContent className="p-4 text-center">
+                              <div className="flex justify-center mb-2">
+                                <div className={`p-2 rounded-full ${activeCategory === category.id ? 'bg-primary text-white' : 'bg-gray-100'
+                                  }`}>
+                                  <category.icon className="h-5 w-5" />
+                                </div>
+                              </div>
+                              <h4 className="font-medium text-sm mb-1">{category.label}</h4>
+                              <p className="text-xs text-gray-500">
+                                {category.count} <TranslatableText staticKey="explore.trips">trips</TranslatableText>
+                              </p>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Destinations Grid */}
+                    <div className="mb-8">
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-lg font-semibold">
+                          {activeCategory === 'all' ?
+                            <TranslatableText staticKey="explore.popularDestinations">Popular Destinations</TranslatableText> :
+                            `${categories.find(c => c.id === activeCategory)?.label} ${t('explore.destinations', 'Destinations')}`
+                          }
+                        </h3>
+                        <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2 text-sm text-gray-600`}>
+                          <span>
+                            {filteredDestinations.length} <TranslatableText staticKey="explore.destinationsFound">destinations found</TranslatableText>
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredDestinations.map((destination) => (
+                          <Card key={destination.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                            <div className="relative h-48">
+                              <img
+                                src={destination.image}
+                                alt={destination.name}
+                                className="w-full h-full object-cover"
+                              />
+                              {destination.trending && (
+                                <Badge className={`absolute top-3 ${direction === 'rtl' ? 'left-3' : 'right-3'} bg-red-500`}>
+                                  <TrendingUp className={`h-3 w-3 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`} />
+                                  <TranslatableText staticKey="explore.trending">Trending</TranslatableText>
+                                </Badge>
+                              )}
+                              <div className="absolute bottom-3 left-3 right-3">
+                                <div className="bg-black/50 rounded-lg p-2 text-white">
+                                  <h4 className="font-semibold text-lg">{destination.name}</h4>
+                                  <p className="text-sm opacity-90">{destination.description}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-4`}>
+                                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
+                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                    <span className="font-medium">{destination.rating}</span>
+                                  </div>
+                                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
+                                    <Camera className="h-4 w-4 text-gray-500" />
+                                    <span className="text-sm text-gray-600">
+                                      {destination.tripsCount} <TranslatableText staticKey="explore.trips">trips</TranslatableText>
+                                    </span>
+                                  </div>
+                                </div>
+                                <Button size="sm">
+                                  <MapPin className={`h-4 w-4 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`} />
+                                  <TranslatableText staticKey="explore.explore">Explore</TranslatableText>
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* Featured Trips Tab */}
+                  <TabsContent value="trips">
+                    <div className="mb-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-1">
+                            <TranslatableText staticKey="explore.exploreTrips">Explore Trips</TranslatableText>
+                          </h3>
+                          <p className="text-gray-600">
+                            <TranslatableText staticKey="explore.exploreTripsDesc">Discover amazing trips shared by our community</TranslatableText>
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => { setPage(1); setExploreItems([]); refetch(); }} disabled={isFetching}>
+                            <Filter className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                            <TranslatableText staticKey="explore.refresh">Refresh</TranslatableText>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {isError && (
+                      <Card className="mb-6">
+                        <CardContent className="p-4 text-red-600">
+                          <TranslatableText staticKey="explore.failedToLoadTrips">Failed to load trips. Please try again.</TranslatableText>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {isLoading && page === 1 ? (
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                          <Card key={i} className="overflow-hidden">
+                            <div className="h-64 bg-gray-100 animate-pulse" />
+                            <CardContent className="p-4">
+                              <div className="h-4 bg-gray-100 rounded w-1/2 mb-2 animate-pulse" />
+                              <div className="h-4 bg-gray-100 rounded w-1/3 animate-pulse" />
+                            </CardContent>
+                          </Card>
+                        ))}
+                        <div className="col-span-full text-center text-sm text-gray-500 mt-4">
+                          <TranslatableText staticKey="explore.loading">Loading…</TranslatableText>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          {mappedTrips
+                            .filter((t) =>
+                              t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              t.location.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              t.location.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              t.category.toLowerCase().includes(searchQuery.toLowerCase())
+                            )
+                            .filter((t) => (activeCategory === 'all' ? true : t.category.toLowerCase() === activeCategory.toLowerCase()))
+                            .map((trip) => (
+                              <TripCard key={trip.id} trip={trip} />
+                            ))}
+                        </div>
+                        {Boolean(exploreData?.next) && (
+                          <div className="text-center mt-6">
+                            <Button variant="outline" onClick={() => setPage((p) => p + 1)} disabled={isFetching}>
+                              {isFetching ?
+                                <TranslatableText staticKey="explore.loading">Loading…</TranslatableText> :
+                                <TranslatableText staticKey="explore.loadMore">Load more</TranslatableText>
+                              }
+                            </Button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </TabsContent>
+
+                  {/* Top Travelers Tab */}
+                  <TabsContent value="travelers">
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold mb-2">
+                        <TranslatableText staticKey="explore.topTravelers">Top Travelers</TranslatableText>
+                      </h3>
+                      <p className="text-gray-600">
+                        <TranslatableText staticKey="explore.topTravelersDesc">Follow inspiring travelers and get exclusive insights</TranslatableText>
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {topTravelers.map((traveler) => (
+                        <UserCard key={traveler.id} user={traveler} />
+                      ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>
@@ -212,207 +413,7 @@ const Explore = () => {
           </div>
         </div>
 
-        {/* Main Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-8">
-            <TabsTrigger value="destinations">
-              <TranslatableText staticKey="explore.destinations">Destinations</TranslatableText>
-            </TabsTrigger>
-            <TabsTrigger value="trips">
-              <TranslatableText staticKey="explore.featuredTrips">Featured Trips</TranslatableText>
-            </TabsTrigger>
-            <TabsTrigger value="travelers">
-              <TranslatableText staticKey="explore.topTravelers">Top Travelers</TranslatableText>
-            </TabsTrigger>
-          </TabsList>
 
-          {/* Destinations Tab */}
-          <TabsContent value="destinations">
-            {/* Categories */}
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold mb-4">
-                <TranslatableText staticKey="explore.browseByCategory">Browse by Category</TranslatableText>
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {categories.map((category) => (
-                  <Card
-                    key={category.id}
-                    className={`cursor-pointer transition-all hover:shadow-md ${activeCategory === category.id ? 'ring-2 ring-primary' : ''
-                      }`}
-                    onClick={() => setActiveCategory(category.id)}
-                  >
-                    <CardContent className="p-4 text-center">
-                      <div className="flex justify-center mb-2">
-                        <div className={`p-2 rounded-full ${activeCategory === category.id ? 'bg-primary text-white' : 'bg-gray-100'
-                          }`}>
-                          <category.icon className="h-5 w-5" />
-                        </div>
-                      </div>
-                      <h4 className="font-medium text-sm mb-1">{category.label}</h4>
-                      <p className="text-xs text-gray-500">
-                        {category.count} <TranslatableText staticKey="explore.trips">trips</TranslatableText>
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* Destinations Grid */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold">
-                  {activeCategory === 'all' ?
-                    <TranslatableText staticKey="explore.popularDestinations">Popular Destinations</TranslatableText> :
-                    `${categories.find(c => c.id === activeCategory)?.label} ${t('explore.destinations', 'Destinations')}`
-                  }
-                </h3>
-                <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2 text-sm text-gray-600`}>
-                  <span>
-                    {filteredDestinations.length} <TranslatableText staticKey="explore.destinationsFound">destinations found</TranslatableText>
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredDestinations.map((destination) => (
-                  <Card key={destination.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-                    <div className="relative h-48">
-                      <img
-                        src={destination.image}
-                        alt={destination.name}
-                        className="w-full h-full object-cover"
-                      />
-                      {destination.trending && (
-                        <Badge className={`absolute top-3 ${direction === 'rtl' ? 'left-3' : 'right-3'} bg-red-500`}>
-                          <TrendingUp className={`h-3 w-3 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`} />
-                          <TranslatableText staticKey="explore.trending">Trending</TranslatableText>
-                        </Badge>
-                      )}
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <div className="bg-black/50 rounded-lg p-2 text-white">
-                          <h4 className="font-semibold text-lg">{destination.name}</h4>
-                          <p className="text-sm opacity-90">{destination.description}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-4`}>
-                          <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
-                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            <span className="font-medium">{destination.rating}</span>
-                          </div>
-                          <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
-                            <Camera className="h-4 w-4 text-gray-500" />
-                            <span className="text-sm text-gray-600">
-                              {destination.tripsCount} <TranslatableText staticKey="explore.trips">trips</TranslatableText>
-                            </span>
-                          </div>
-                        </div>
-                        <Button size="sm">
-                          <MapPin className={`h-4 w-4 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`} />
-                          <TranslatableText staticKey="explore.explore">Explore</TranslatableText>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Featured Trips Tab */}
-          <TabsContent value="trips">
-            <div className="mb-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold mb-1">
-                    <TranslatableText staticKey="explore.exploreTrips">Explore Trips</TranslatableText>
-                  </h3>
-                  <p className="text-gray-600">
-                    <TranslatableText staticKey="explore.exploreTripsDesc">Discover amazing trips shared by our community</TranslatableText>
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" onClick={() => { setPage(1); setExploreItems([]); refetch(); }} disabled={isFetching}>
-                    <Filter className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                    <TranslatableText staticKey="explore.refresh">Refresh</TranslatableText>
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {isError && (
-              <Card className="mb-6">
-                <CardContent className="p-4 text-red-600">
-                  <TranslatableText staticKey="explore.failedToLoadTrips">Failed to load trips. Please try again.</TranslatableText>
-                </CardContent>
-              </Card>
-            )}
-
-            {isLoading && page === 1 ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Card key={i} className="overflow-hidden">
-                    <div className="h-64 bg-gray-100 animate-pulse" />
-                    <CardContent className="p-4">
-                      <div className="h-4 bg-gray-100 rounded w-1/2 mb-2 animate-pulse" />
-                      <div className="h-4 bg-gray-100 rounded w-1/3 animate-pulse" />
-                    </CardContent>
-                  </Card>
-                ))}
-                <div className="col-span-full text-center text-sm text-gray-500 mt-4">
-                  <TranslatableText staticKey="explore.loading">Loading…</TranslatableText>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {mappedTrips
-                    .filter((t) =>
-                      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      t.location.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      t.location.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      t.category.toLowerCase().includes(searchQuery.toLowerCase())
-                    )
-                    .filter((t) => (activeCategory === 'all' ? true : t.category.toLowerCase() === activeCategory.toLowerCase()))
-                    .map((trip) => (
-                      <TripCard key={trip.id} trip={trip} />
-                    ))}
-                </div>
-                {Boolean(exploreData?.next) && (
-                  <div className="text-center mt-6">
-                    <Button variant="outline" onClick={() => setPage((p) => p + 1)} disabled={isFetching}>
-                      {isFetching ?
-                        <TranslatableText staticKey="explore.loading">Loading…</TranslatableText> :
-                        <TranslatableText staticKey="explore.loadMore">Load more</TranslatableText>
-                      }
-                    </Button>
-                  </div>
-                )}
-              </>
-            )}
-          </TabsContent>
-
-          {/* Top Travelers Tab */}
-          <TabsContent value="travelers">
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">
-                <TranslatableText staticKey="explore.topTravelers">Top Travelers</TranslatableText>
-              </h3>
-              <p className="text-gray-600">
-                <TranslatableText staticKey="explore.topTravelersDesc">Follow inspiring travelers and get exclusive insights</TranslatableText>
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {topTravelers.map((traveler) => (
-                <UserCard key={traveler.id} user={traveler} />
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
       </div>
     </div>
   );

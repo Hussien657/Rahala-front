@@ -21,14 +21,21 @@ import {
   Tag,
   Users,
   UserPlus,
-  UserMinus
+  UserMinus,
+  Sparkles,
+  RefreshCw,
+  CalendarDays,
+  AlertTriangle,
+  Lightbulb,
+  Languages,
+  CircleDollarSign
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGetTripStatsQuery, useLikeTripMutation, useUnlikeTripMutation, useSaveTripMutation, useUnsaveTripMutation, useGetTripLikesQuery, useFollowUserMutation, useUnfollowUserMutation } from '@/store/interactionsApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Bookmark } from 'lucide-react';
-import { useGetTripByIdQuery, useAddTripImagesMutation, useAddTripVideosMutation, useDeleteTripImageMutation, useDeleteTripVideoMutation, useAddTripTagsMutation, useDeleteTripTagMutation, useDeleteTripMutation } from '@/store/tripsApi';
+import { useGetTripByIdQuery, useAddTripImagesMutation, useAddTripVideosMutation, useDeleteTripImageMutation, useDeleteTripVideoMutation, useAddTripTagsMutation, useDeleteTripTagMutation, useDeleteTripMutation, useGenerateTourismInfoMutation } from '@/store/tripsApi';
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -38,7 +45,7 @@ const TripDetails = () => {
   const { tripId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { direction, t } = useLanguage();
+  const { direction, t, language } = useLanguage();
   const { data: stats, isLoading: statsLoading, isError: statsError, refetch } = useGetTripStatsQuery(tripId || '');
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
@@ -55,6 +62,7 @@ const TripDetails = () => {
   const [addTags, { isLoading: addingTags }] = useAddTripTagsMutation();
   const [deleteTag] = useDeleteTripTagMutation();
   const [deleteTrip, { isLoading: deletingTrip }] = useDeleteTripMutation();
+  const [generateTourismInfo, { isLoading: generatingInfo }] = useGenerateTourismInfoMutation();
 
   const [newTagsInput, setNewTagsInput] = useState('');
   const [selectedImageFiles, setSelectedImageFiles] = useState<File[]>([]);
@@ -267,6 +275,23 @@ const TripDetails = () => {
       toast({
         title: t('tripDetails.error', 'Error'),
         description: t('tripDetails.failedToDeleteTrip', 'Failed to delete trip.')
+      });
+    }
+  };
+
+  const handleGenerateTourismInfo = async (force = false) => {
+    if (!tripId) return;
+    try {
+      await generateTourismInfo({ tripId, force, language }).unwrap();
+      await refetchTrip();
+      toast({
+        title: t('tripDetails.success', 'Success'),
+        description: t('tripDetails.aiInsightsUpdated', 'AI travel insights updated.')
+      });
+    } catch (e) {
+      toast({
+        title: t('tripDetails.error', 'Error'),
+        description: t('tripDetails.failedToGenerateInsights', 'Failed to generate AI insights.')
       });
     }
   };
@@ -540,6 +565,159 @@ const TripDetails = () => {
                 </p>
               </div>
             )}
+
+            {/* AI Travel Insights */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  <TranslatableText staticKey="tripDetails.aiTravelInsights">AI Travel Insights</TranslatableText>
+                </h2>
+                <div className="flex items-center gap-2">
+                  {trip?.tourism_info ? (
+                    // <Button size="sm" variant="outline" onClick={() => handleGenerateTourismInfo(true)} disabled={generatingInfo}>
+                    //   <RefreshCw className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'} ${generatingInfo ? 'animate-spin' : ''}`} />
+                    //   <TranslatableText staticKey="tripDetails.regenerate">Regenerate</TranslatableText>
+                    // </Button>
+                    <></>
+                  ) : (
+                    <Button size="sm" onClick={() => handleGenerateTourismInfo()} disabled={generatingInfo || tripLoading}>
+                      <Sparkles className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                      <TranslatableText staticKey="tripDetails.generateInsights">Generate Insights</TranslatableText>
+                    </Button>
+                  )}
+                </div>
+              </div>
+              {generatingInfo && (
+                <div className="space-y-2 mb-3">
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-20 w-full" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                  </div>
+                </div>
+              )}
+              {trip?.tourism_info ? (
+                <div className="space-y-4">
+                  {trip.tourism_info?.description && (
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <MapPin className="h-5 w-5 mt-0.5 text-primary" />
+                          <p className="text-gray-700 leading-relaxed">
+                            <TranslatableText staticKey="tripDetails.tourismInfoDescription">
+                              {trip.tourism_info.description}
+                            </TranslatableText>
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {trip.tourism_info?.recommended_places?.length ? (
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <MapPin className="h-4 w-4" />
+                            <h3 className="font-medium text-gray-900">
+                              <TranslatableText staticKey="tripDetails.recommendedPlaces">Recommended Places</TranslatableText>
+                            </h3>
+                          </div>
+                          <ul className="list-disc pl-5 space-y-1 text-gray-700" dir={direction}>
+                            {trip.tourism_info.recommended_places.map((p, i) => (
+                              <li key={i}>{p}</li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    ) : null}
+                    {trip.tourism_info?.warnings?.length ? (
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <AlertTriangle className="h-4 w-4 text-amber-500" />
+                            <h3 className="font-medium text-gray-900">
+                              <TranslatableText staticKey="tripDetails.warnings">Warnings</TranslatableText>
+                            </h3>
+                          </div>
+                          <ul className="list-disc pl-5 space-y-1 text-gray-700" dir={direction}>
+                            {trip.tourism_info.warnings.map((w, i) => (
+                              <li key={i}>{w}</li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    ) : null}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {trip.tourism_info?.best_time_to_visit ? (
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2 text-gray-800">
+                            <CalendarDays className="h-4 w-4" />
+                            <span className="font-medium">
+                              <TranslatableText staticKey="tripDetails.bestTimeToVisit">Best Time to Visit</TranslatableText>:
+                            </span>
+                            <span className="text-gray-700">{trip.tourism_info.best_time_to_visit}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ) : null}
+                    {trip.tourism_info?.currency ? (
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2 text-gray-800">
+                            <CircleDollarSign className="h-4 w-4" />
+                            <span className="font-medium">
+                              <TranslatableText staticKey="tripDetails.currency">Currency</TranslatableText>:
+                            </span>
+                            <span className="text-gray-700">{trip.tourism_info.currency}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ) : null}
+                    {trip.tourism_info?.language ? (
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2 text-gray-800">
+                            <Languages className="h-4 w-4" />
+                            <span className="font-medium">
+                              <TranslatableText staticKey="tripDetails.language">Language</TranslatableText>:
+                            </span>
+                            <span className="text-gray-700">{trip.tourism_info.language}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ) : null}
+                  </div>
+                  {trip.tourism_info?.local_tips?.length ? (
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Lightbulb className="h-4 w-4 text-yellow-500" />
+                          <h3 className="font-medium text-gray-900">
+                            <TranslatableText staticKey="tripDetails.localTips">Local Tips</TranslatableText>
+                          </h3>
+                        </div>
+                        <ul className="list-disc pl-5 space-y-1 text-gray-700" dir={direction}>
+                          {trip.tourism_info.local_tips.map((tip, i) => (
+                            <li key={i}>{tip}</li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  ) : null}
+                </div>
+              ) : (
+                !generatingInfo && (
+                  <div className="text-gray-600 text-sm flex items-center gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    <TranslatableText staticKey="tripDetails.noInsightsYet">No insights yet. Generate AI travel insights for this location.</TranslatableText>
+                  </div>
+                )
+              )}
+            </div>
 
             {/* Tags */}
             {trip?.tags?.length ? (

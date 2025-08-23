@@ -25,6 +25,8 @@ import ResetPassword from "./pages/ResetPassword";
 import SearchResults from "./pages/SearchResults";
 import GradientDemo from "./pages/GradientDemo";
 import HoverGradientExamples from "./components/HoverGradientExamples";
+import SubscriptionPlans from "./pages/SubscriptionPlans";
+import PaymentCallback from "./pages/PaymentCallback";
 
 function AppLayout() {
   const location = useLocation();
@@ -63,6 +65,8 @@ function AppLayout() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/gradient-demo" element={<GradientDemo />} />
           <Route path="/gradient-examples" element={<HoverGradientExamples />} />
+          <Route path="/subscriptions" element={<ProtectedRoute><SubscriptionPlans /></ProtectedRoute>} />
+          <Route path="/payment/callback" element={<ProtectedRoute><PaymentCallback /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
           <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
         </Routes>

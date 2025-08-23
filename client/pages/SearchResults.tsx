@@ -100,7 +100,7 @@ const SearchResults = () => {
   const renderTagResult = (tag: any) => (
     <Link
       key={tag.tripTag}
-      to={`/explore/tag/${tag.tripTag}`}
+      to={`/trip/${tag.id}`}
       className="block p-4 bg-white rounded-lg border border-gray-200 hover:border-primary/50 hover:shadow-md transition-all duration-200"
     >
       <div className="flex items-center space-x-4">
@@ -108,7 +108,7 @@ const SearchResults = () => {
           <Hash className="h-6 w-6 text-blue-600" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 truncate">#{tag.tripTag}</h3>
+          <h3 className="font-semibold text-gray-900 truncate">#{tag.caption}</h3>
           <p className="text-sm text-gray-500">{tag.trips_count} رحلة</p>
         </div>
       </div>

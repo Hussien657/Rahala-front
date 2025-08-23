@@ -77,7 +77,7 @@ export const authApi = baseApi.injectEndpoints({
             query: ({ uidb64, token, new_password }) => ({
                 url: `api/accounts/password-reset-confirm/${uidb64}/${token}/`,
                 method: 'POST',
-                body: { new_password },
+                body: { new_password, new_password_confirm: new_password },
             }),
         }),
 

@@ -13,6 +13,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import TranslatableText from '@/components/TranslatableText';
 import { useGetMyProfileQuery, useGetMyProfileDetailsQuery } from '@/store/userApi';
 import { useGetUserFollowersQuery, useGetUserFollowingQuery, useGetUserStatsQuery, useFollowUserMutation, useUnfollowUserMutation } from '@/store/interactionsApi';
+import { useGetMyTripsQuery } from '@/store/tripsApi';
 import { skipToken } from '@reduxjs/toolkit/query';
 import {
   Settings,
@@ -36,6 +37,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('trips');
   const { data: mainProfile, isLoading: isLoadingMain, isError: isErrorMain } = useGetMyProfileQuery();
   const { data: detailsProfile, isLoading: isLoadingDetails, isError: isErrorDetails } = useGetMyProfileDetailsQuery();
+  const { data: myTrips, isLoading: isLoadingMyTrips, isError: isErrorMyTrips, refetch: refetchMyTrips } = useGetMyTripsQuery();
   const userId = mainProfile?.id;
   const { data: followersData } = useGetUserFollowersQuery(userId ?? (skipToken as any));
   const { data: followingData } = useGetUserFollowingQuery(userId ?? (skipToken as any));
@@ -139,47 +141,40 @@ const Profile = () => {
 
   const avatarUrl = detailsProfile.avatar || user.avatar || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face';
 
-  // Mock user trips (kept for demo)
-  const userTrips = [
-    {
-      id: '1',
-      title: 'Sunrise at Machu Picchu',
-      description: 'An incredible journey to Peru and the ancient citadel of Machu Picchu. The sunrise views were absolutely breathtaking!',
-      images: ['https://images.unsplash.com/photo-1526392060635-9d6019884377?w=800&h=600&fit=crop'],
-      location: { country: 'Peru', city: 'Cusco' },
-      category: 'Adventure',
-      rating: 4.9,
-      duration: '8 days',
-      author: {
-        id: String(mainProfile.id),
-        name: displayName,
-        avatar: avatarUrl
-      },
-      likes: 456,
-      comments: 67,
-      isLiked: false,
-      createdAt: '2024-01-10'
-    },
-    {
-      id: '2',
-      title: 'Cherry Blossoms in Kyoto',
-      description: 'Perfect timing for the cherry blossom season in Japan. The temples and gardens were incredibly beautiful.',
-      images: ['https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&h=600&fit=crop'],
-      location: { country: 'Japan', city: 'Kyoto' },
-      category: 'Culture',
-      rating: 4.8,
-      duration: '10 days',
-      author: {
-        id: String(mainProfile.id),
-        name: displayName,
-        avatar: avatarUrl
-      },
-      likes: 234,
-      comments: 34,
-      isLiked: true,
-      createdAt: '2024-01-05'
-    }
-  ];
+  // Map API trips -> TripCard props
+  const myTripsMapped = (myTrips ?? [])
+    .map((trip: any) => {
+      const imageUrls: string[] = Array.isArray(trip.images) && trip.images.length
+        ? trip.images.map((img: any) => img.image)
+        : ['https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&h=800&fit=crop'];
+
+      const country = trip.country || (typeof trip.location === 'string' ? String(trip.location).split(',').map((s: string) => s.trim())[1] || '' : '');
+      const city = trip.city || (typeof trip.location === 'string' ? String(trip.location).split(',').map((s: string) => s.trim())[0] || '' : '');
+
+      const category = Array.isArray(trip.tags) && trip.tags.length ? String(trip.tags[0]) : 'Trip';
+      const description = (trip.tourism_info && trip.tourism_info.description) || trip.caption || '';
+
+      return {
+        id: String(trip.id),
+        title: trip.caption || 'Untitled Trip',
+        description,
+        images: imageUrls,
+        location: { country: country || '—', city: city || '—' },
+        category,
+        rating: 4.8,
+        duration: '—',
+        author: {
+          id: String(mainProfile.id),
+          name: displayName,
+          avatar: avatarUrl,
+        },
+        likes: 0,
+        comments: 0,
+        isLiked: false,
+        createdAt: trip.created_at || new Date().toISOString(),
+      };
+    })
+    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   // Extended user data with profile-specific information
   const currentUser = {
@@ -194,11 +189,11 @@ const Profile = () => {
     joinDate: mainProfile.date_joined,
     isVerified: !!mainProfile.is_verified,
     stats: {
-      trips: userStats?.trips_count ?? userTrips.length,
+      trips: userStats?.trips_count ?? (myTripsMapped?.length ?? 0),
       followers: userStats?.followers_count ?? followers.length,
       following: userStats?.following_count ?? following.length,
-      likes: userTrips.reduce((total, trip) => total + trip.likes, 0),
-      countries: new Set(userTrips.map(trip => trip.location.country)).size
+      likes: 0,
+      countries: new Set(myTripsMapped.map(trip => trip.location.country)).size
     }
   };
 
@@ -324,12 +319,12 @@ const Profile = () => {
                   <TranslatableText staticKey="profile.following">Following</TranslatableText>
                 </div>
               </div>
-              <div className="text-center">
+              {/* <div className="text-center">
                 <div className="text-2xl font-bold text-gray-900">{currentUser.stats.likes.toLocaleString()}</div>
                 <div className="text-sm text-gray-600">
                   <TranslatableText staticKey="profile.likes">Likes</TranslatableText>
                 </div>
-              </div>
+              </div> */}
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-900">{currentUser.stats.countries}</div>
                 <div className="text-sm text-gray-600">
@@ -374,13 +369,62 @@ const Profile = () => {
                     </Link>
                   </Button>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {userTrips.map((trip) => (
-                    <div key={trip.id} className="transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
-                      <TripCard trip={trip} />
+                {/* Loading state for trips */}
+                {isLoadingMyTrips && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {[0, 1, 2, 3].map((i) => (
+                      <div key={i} className="rounded-lg border p-4">
+                        <div className="h-64 w-full bg-gray-100 animate-pulse rounded-md mb-4"></div>
+                        <div className="h-4 w-1/2 bg-gray-100 animate-pulse rounded mb-2"></div>
+                        <div className="h-3 w-3/4 bg-gray-100 animate-pulse rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Error state */}
+                {isErrorMyTrips && !isLoadingMyTrips && (
+                  <div className="text-center p-10 bg-gray-50 rounded-lg border">
+                    <p className="text-gray-600 mb-4">
+                      <TranslatableText staticKey="profile.failedToLoadTrips">Failed to load your trips.</TranslatableText>
+                    </p>
+                    <Button onClick={() => refetchMyTrips()} className="shadow-sm">
+                      <TranslatableText staticKey="profile.retry">Retry</TranslatableText>
+                    </Button>
+                  </div>
+                )}
+
+                {/* Empty state */}
+                {!isLoadingMyTrips && !isErrorMyTrips && myTripsMapped.length === 0 && (
+                  <div className="text-center p-10 bg-gradient-to-br from-gray-50 to-white rounded-lg border">
+                    <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Camera className="h-8 w-8 text-primary" />
                     </div>
-                  ))}
-                </div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                      <TranslatableText staticKey="profile.noTripsYet">You have no trips yet</TranslatableText>
+                    </h4>
+                    <p className="text-gray-600 mb-4">
+                      <TranslatableText staticKey="profile.startSharingTrips">Start sharing your travel stories with the community.</TranslatableText>
+                    </p>
+                    <Button asChild className="shadow-sm">
+                      <Link to="/create-trip">
+                        <Camera className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                        <TranslatableText staticKey="profile.createYourFirstTrip">Create your first trip</TranslatableText>
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+
+                {/* Trips grid */}
+                {!isLoadingMyTrips && !isErrorMyTrips && myTripsMapped.length > 0 && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {myTripsMapped.map((trip) => (
+                      <div key={trip.id} className="transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+                        <TripCard trip={trip} />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </TabsContent>
 

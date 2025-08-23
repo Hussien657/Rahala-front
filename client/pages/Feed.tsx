@@ -94,10 +94,10 @@ const Feed = () => {
   return (
     <div className="min-h-screen bg-gray-50" dir={direction}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Sidebar - Categories */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Create Post Button */}
+          {/* <div className="lg:col-span-1 space-y-6">
+            
             <Card>
               <CardContent className="p-4">
                 <Button className="w-full" asChild>
@@ -109,7 +109,7 @@ const Feed = () => {
               </CardContent>
             </Card>
 
-            {/* Categories */}
+         
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center mb-4">
@@ -132,7 +132,7 @@ const Feed = () => {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </div> */}
 
           {/* Main Feed */}
           <div className="lg:col-span-2 space-y-6">
@@ -271,7 +271,7 @@ const Feed = () => {
             </Card>
 
             {/* Trending Destinations */}
-           {/* <Card>
+            {/* <Card>
               <CardContent className="p-4">
                 <div className="flex items-center mb-4">
                   <TrendingUp className="h-5 w-5 mr-2 text-primary" />
