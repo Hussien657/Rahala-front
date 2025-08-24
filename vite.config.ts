@@ -6,8 +6,8 @@ import path from "path";
 export default defineConfig({
   server: {
     host: "0.0.0.0", // Allow external connections
-    port: 8080,
-    strictPort: true, // Exit if port is already in use
+    port: 3001,
+    strictPort: false, // Try next available port if current is in use
     open: false, // Don't auto-open browser
     cors: true, // Enable CORS
     proxy: {

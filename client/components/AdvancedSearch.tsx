@@ -4,6 +4,7 @@ import { Search, User, Hash, Clock, TrendingUp, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import TranslatableText from '@/components/TranslatableText';
 import {
   useLazyQuickSearchQuery,
   useLazyGetSearchSuggestionsQuery,
@@ -40,8 +41,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
 }) => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { direction } = useLanguage();
-  
+  const { direction, t } = useLanguage();  
   // States
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -346,7 +346,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
           {searchSuggestions.length > 0 && searchQuery.trim() && showSuggestions && (
             <div className="border-b border-gray-100">
               <div className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50">
-                اقتراحات
+                <TranslatableText staticKey="search.suggestions" fallback="Suggestions">اقتراحات</TranslatableText>
               </div>
               {searchSuggestions.map((suggestion, index) => (
                 <div
@@ -378,15 +378,15 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
           {searchHistory.length > 0 && !searchQuery.trim() && showHistory && (
             <div className="border-b border-gray-100">
               <div className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 flex items-center justify-between">
-                <div className="flex items-center space-x-2">
+                <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
                   <Clock className="h-4 w-4" />
-                  <span>البحثات الأخيرة</span>
+                  <span><TranslatableText staticKey="search.recentSearches" fallback="Recent Searches">البحثات الأخيرة</TranslatableText></span>
                 </div>
                 <button
                   onClick={handleClearHistory}
                   className="text-xs text-gray-500 hover:text-gray-700"
                 >
-                  مسح الكل
+                  <TranslatableText staticKey="search.clearAll" fallback="Clear All">مسح الكل</TranslatableText>
                 </button>
               </div>
               {searchHistory.map((item, index) => (
@@ -400,7 +400,8 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                     <span className="text-gray-900">{item.query}</span>
                   </div>
                   <span className="text-xs text-gray-500">
-                    {item.results_count} نتيجة
+                    {item.results_count} <TranslatableText staticKey="search.results" fallback="results">نتيجة</TranslatableText>
+
                   </span>
                 </div>
               ))}
@@ -410,9 +411,9 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
           {/* Popular Searches */}
           {popularSearches.length > 0 && !searchQuery.trim() && showPopular && !searchHistory.length && (
             <div>
-              <div className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 flex items-center space-x-2">
+              <div className={`px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
                 <TrendingUp className="h-4 w-4" />
-                <span>البحثات الشائعة</span>
+                <span><TranslatableText staticKey="search.popularSearches" fallback="Popular Searches">البحثات الشائعة</TranslatableText></span>
               </div>
               {popularSearches.map((item, index) => (
                 <div
@@ -426,7 +427,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-xs text-gray-500">
-                      {item.search_count} بحث
+                      {item.search_count} <TranslatableText staticKey="search.searchCount" fallback="searches">بحث</TranslatableText>
                     </span>
                     <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                   </div>

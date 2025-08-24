@@ -20,22 +20,31 @@ const TranslatableText: React.FC<TranslatableTextProps> = ({
   fallback,
   staticKey
 }) => {
-  const { direction, t } = useLanguage();
-  const [translatedText, setTranslatedText] = useState<string>(children);
+  const { direction, t, language, staticTranslations } = useLanguage();
 
-  useEffect(() => {
-    // If staticKey is provided, use static translation
+  // Calculate the text to display directly without useState
+  const getDisplayText = (): string => {
     if (staticKey) {
-      setTranslatedText(t(staticKey, fallback || children));
+      const translation = t(staticKey);
+
+      // If translation is found and different from the key, use it
+      if (translation && translation !== staticKey) {
+        return translation;
+      } else if (fallback) {
+        return fallback;
+      } else {
+        return children;
+      }
     } else {
-      // For non-static keys, just use the children as fallback
-      setTranslatedText(children);
+      return children;
     }
-  }, [children, t, staticKey, fallback]);
+  };
+
+  const displayText = getDisplayText();
 
   return (
     <Component className={className} dir={direction}>
-      {translatedText}
+      {displayText}
     </Component>
   );
 };

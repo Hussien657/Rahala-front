@@ -27,6 +27,9 @@ import GradientDemo from "./pages/GradientDemo";
 import HoverGradientExamples from "./components/HoverGradientExamples";
 import SubscriptionPlans from "./pages/SubscriptionPlans";
 import PaymentCallback from "./pages/PaymentCallback";
+import SettingsTest from "./components/SettingsTest";
+import SimpleTranslationTest from "./components/SimpleTranslationTest";
+import LanguageTest from "./components/LanguageTest";
 
 function AppLayout() {
   const location = useLocation();
@@ -56,6 +59,9 @@ function AppLayout() {
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/profile/:userId" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/settings-test" element={<ProtectedRoute><SettingsTest /></ProtectedRoute>} />
+          <Route path="/simple-test" element={<SimpleTranslationTest />} />
+          <Route path="/language-test" element={<LanguageTest />} />
           <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
           <Route path="/notifications/settings" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
           <Route path="/trip/:tripId" element={<ProtectedRoute><TripDetails /></ProtectedRoute>} />

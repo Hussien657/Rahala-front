@@ -3,6 +3,8 @@ import { BarChart3, TrendingUp, Users, Hash, Clock, Search } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { useGetPopularSearchesQuery } from '@/store/searchApi';
+import { useLanguage } from '@/contexts/LanguageContext';
+import TranslatableText from './TranslatableText';
 
 interface SearchStatsProps {
   query?: string;
@@ -21,6 +23,7 @@ const SearchStats: React.FC<SearchStatsProps> = ({
   searchTime,
   className = '',
 }) => {
+  const { direction } = useLanguage();
   const [showStats, setShowStats] = useState(false);
   const { data: popularSearches } = useGetPopularSearchesQuery({ limit: 5 });
 
@@ -33,14 +36,14 @@ const SearchStats: React.FC<SearchStatsProps> = ({
   if (!showStats && !popularSearches) return null;
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-4 ${className}`} dir={direction}>
       {/* Search Results Stats */}
       {showStats && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center space-x-2">
+            <CardTitle className={`text-lg flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
               <BarChart3 className="h-5 w-5" />
-              <span>إحصائيات البحث</span>
+              <TranslatableText staticKey="searchStats.title">Search Statistics</TranslatableText>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -48,24 +51,26 @@ const SearchStats: React.FC<SearchStatsProps> = ({
               {/* Total Results */}
               <div className="text-center p-3 bg-blue-50 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">{totalResults}</div>
-                <div className="text-sm text-blue-800">إجمالي النتائج</div>
+                <div className="text-sm text-blue-800">
+                  <TranslatableText staticKey="searchStats.totalResults">Total Results</TranslatableText>
+                </div>
               </div>
 
               {/* Users Count */}
               <div className="text-center p-3 bg-green-50 rounded-lg">
                 <div className="text-2xl font-bold text-green-600">{usersCount}</div>
-                <div className="text-sm text-green-800 flex items-center justify-center space-x-1">
+                <div className={`text-sm text-green-800 flex items-center justify-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
                   <Users className="h-3 w-3" />
-                  <span>مستخدمين</span>
+                  <TranslatableText staticKey="searchStats.users">Users</TranslatableText>
                 </div>
               </div>
 
               {/* Tags Count */}
               <div className="text-center p-3 bg-purple-50 rounded-lg">
                 <div className="text-2xl font-bold text-purple-600">{tagsCount}</div>
-                <div className="text-sm text-purple-800 flex items-center justify-center space-x-1">
+                <div className={`text-sm text-purple-800 flex items-center justify-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
                   <Hash className="h-3 w-3" />
-                  <span>تاجز</span>
+                  <TranslatableText staticKey="searchStats.tags">Tags</TranslatableText>
                 </div>
               </div>
 
@@ -75,9 +80,9 @@ const SearchStats: React.FC<SearchStatsProps> = ({
                   <div className="text-2xl font-bold text-orange-600">
                     {searchTime.toFixed(2)}
                   </div>
-                  <div className="text-sm text-orange-800 flex items-center justify-center space-x-1">
+                  <div className={`text-sm text-orange-800 flex items-center justify-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
                     <Clock className="h-3 w-3" />
-                    <span>ثانية</span>
+                    <TranslatableText staticKey="searchStats.seconds">Seconds</TranslatableText>
                   </div>
                 </div>
               )}
@@ -86,9 +91,9 @@ const SearchStats: React.FC<SearchStatsProps> = ({
             {/* Search Query Info */}
             {query && (
               <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2 text-sm text-gray-600`}>
                   <Search className="h-4 w-4" />
-                  <span>البحث عن:</span>
+                  <TranslatableText staticKey="searchStats.searchingFor">Searching for:</TranslatableText>
                   <Badge variant="outline" className="font-mono">
                     "{query}"
                   </Badge>
@@ -103,9 +108,9 @@ const SearchStats: React.FC<SearchStatsProps> = ({
       {popularSearches && popularSearches.popular_searches.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center space-x-2">
+            <CardTitle className={`text-lg flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
               <TrendingUp className="h-5 w-5" />
-              <span>البحثات الشائعة</span>
+              <TranslatableText staticKey="searchStats.popularSearches">Popular Searches</TranslatableText>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -118,20 +123,22 @@ const SearchStats: React.FC<SearchStatsProps> = ({
                     window.location.href = `/search?q=${encodeURIComponent(search.query)}`;
                   }}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-3`}>
                     <div className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-600 rounded-full text-sm font-bold">
                       {index + 1}
                     </div>
                     <div>
                       <div className="font-medium text-gray-900">{search.query}</div>
                       <div className="text-sm text-gray-500">
-                        آخر بحث: {new Date(search.last_searched).toLocaleDateString('ar-EG')}
+                        <TranslatableText staticKey="searchStats.lastSearched">Last searched:</TranslatableText>{' '}
+                        {new Date(search.last_searched).toLocaleDateString(direction === 'rtl' ? 'ar-EG' : 'en-US')}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
                     <Badge variant="secondary" className="text-xs">
-                      {search.search_count} بحث
+                      {search.search_count}{' '}
+                      <TranslatableText staticKey="searchStats.searches">searches</TranslatableText>
                     </Badge>
                     <TrendingUp className="h-4 w-4 text-green-500" />
                   </div>
@@ -142,7 +149,8 @@ const SearchStats: React.FC<SearchStatsProps> = ({
             {/* Total Popular Searches Count */}
             <div className="mt-4 pt-3 border-t border-gray-200">
               <div className="text-center text-sm text-gray-500">
-                إجمالي البحثات الشائعة: {popularSearches.total_count}
+                <TranslatableText staticKey="searchStats.totalPopularSearches">Total popular searches:</TranslatableText>{' '}
+                {popularSearches.total_count}
               </div>
             </div>
           </CardContent>
@@ -152,35 +160,39 @@ const SearchStats: React.FC<SearchStatsProps> = ({
       {/* Search Tips */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center space-x-2">
+          <CardTitle className={`text-lg flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
             <Search className="h-5 w-5" />
-            <span>نصائح البحث</span>
+            <TranslatableText staticKey="searchStats.searchTips">Search Tips</TranslatableText>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3 text-sm text-gray-600">
-            <div className="flex items-start space-x-2">
+            <div className={`flex items-start ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
               <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
               <div>
-                <strong>البحث في المستخدمين:</strong> استخدم اسم المستخدم أو الاسم الحقيقي
+                <strong><TranslatableText staticKey="searchStats.searchUsers">Search Users:</TranslatableText></strong>{' '}
+                <TranslatableText staticKey="searchStats.searchUsersDesc">Use username or real name</TranslatableText>
               </div>
             </div>
-            <div className="flex items-start space-x-2">
+            <div className={`flex items-start ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
               <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
               <div>
-                <strong>البحث في التاجز:</strong> ابحث عن كلمات مفتاحية مثل "مغامرة" أو "سفر"
+                <strong><TranslatableText staticKey="searchStats.searchTags">Search Tags:</TranslatableText></strong>{' '}
+                <TranslatableText staticKey="searchStats.searchTagsDesc">Search for keywords like "adventure" or "travel"</TranslatableText>
               </div>
             </div>
-            <div className="flex items-start space-x-2">
+            <div className={`flex items-start ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
               <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
               <div>
-                <strong>استخدم الفلاتر:</strong> لتضييق نطاق البحث حسب البلد أو عدد المتابعين
+                <strong><TranslatableText staticKey="searchStats.useFilters">Use Filters:</TranslatableText></strong>{' '}
+                <TranslatableText staticKey="searchStats.useFiltersDesc">Narrow down results by country or follower count</TranslatableText>
               </div>
             </div>
-            <div className="flex items-start space-x-2">
+            <div className={`flex items-start ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
               <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
               <div>
-                <strong>البحث السريع:</strong> ابدأ بكتابة حرفين على الأقل للحصول على اقتراحات
+                <strong><TranslatableText staticKey="searchStats.quickSearch">Quick Search:</TranslatableText></strong>{' '}
+                <TranslatableText staticKey="searchStats.quickSearchDesc">Start typing at least two characters for suggestions</TranslatableText>
               </div>
             </div>
           </div>

@@ -196,7 +196,7 @@ const Explore = () => {
             <Card>
               <CardContent className="p-6">
                 <AdvancedSearch
-                  placeholder={t('explore.searchPlaceholder', 'البحث عن وجهات، مستخدمين، أو تجارب...')}
+                  placeholder={t('explore.searchPlaceholder', 'Search destinations, users, or experiences...')}
                   className="w-full"
                   maxResults={8}
                   showHistory={true}
