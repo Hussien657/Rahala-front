@@ -27,7 +27,8 @@ import {
   Compass,
   Trophy,
   Globe,
-  LogOut
+  LogOut,
+  CheckCircle,
 } from 'lucide-react';
 
 const Profile = () => {
@@ -50,7 +51,6 @@ const Profile = () => {
     navigate('/');
   };
 
-  // Show loading spinner while checking authentication
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir={direction}>
@@ -64,12 +64,10 @@ const Profile = () => {
     );
   }
 
-  // Redirect to login if not authenticated
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
   }
 
-  // Loading state for profile fetch
   if (isLoadingMain || isLoadingDetails) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir={direction}>
@@ -98,7 +96,6 @@ const Profile = () => {
     );
   }
 
-  // Followers / Following lists from API
   const followers = (followersData?.results ?? []).map((rel) => ({
     id: String(rel.follower.id),
     name: rel.follower.username,
@@ -141,7 +138,6 @@ const Profile = () => {
 
   const avatarUrl = detailsProfile.avatar || user.avatar || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face';
 
-  // Map API trips -> TripCard props
   const myTripsMapped = (myTrips ?? [])
     .map((trip: any) => {
       const imageUrls: string[] = Array.isArray(trip.images) && trip.images.length
@@ -167,6 +163,7 @@ const Profile = () => {
           id: String(mainProfile.id),
           name: displayName,
           avatar: avatarUrl,
+          hasVerifiedBadge: !!mainProfile.subscription_status?.has_verified_badge,
         },
         likes: 0,
         comments: 0,
@@ -176,7 +173,6 @@ const Profile = () => {
     })
     .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  // Extended user data with profile-specific information
   const currentUser = {
     id: String(mainProfile.id),
     name: displayName,
@@ -188,11 +184,12 @@ const Profile = () => {
     website: '',
     joinDate: mainProfile.date_joined,
     isVerified: !!mainProfile.is_verified,
+    isSubscribed: !!mainProfile.subscription_status?.is_active,
+    hasVerifiedBadge: !!mainProfile.subscription_status?.has_verified_badge,
     stats: {
       trips: userStats?.trips_count ?? (myTripsMapped?.length ?? 0),
       followers: userStats?.followers_count ?? followers.length,
       following: userStats?.following_count ?? following.length,
-      likes: 0,
       countries: new Set(myTripsMapped.map(trip => trip.location.country)).size
     }
   };
@@ -227,10 +224,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-white" dir={direction}>
       <div className="max-w-6xl mx-auto">
-
-        {/* Cover Photo & Profile Info */}
         <div className="relative bg-white shadow-sm">
-          {/* Cover Image */}
           <div className="h-64 md:h-80 bg-gradient-to-r from-primary to-accent overflow-hidden">
             <img
               src={currentUser.coverImage}
@@ -239,26 +233,38 @@ const Profile = () => {
             />
             <div className="absolute inset-0 bg-black/20"></div>
           </div>
-
-          {/* Profile Info */}
           <div className="relative px-6 pb-6 bg-white">
             <div className={`flex flex-col md:flex-row md:items-end ${direction === 'rtl' ? 'md:space-x-reverse' : ''} md:space-x-6`}>
-              {/* Avatar */}
               <div className="relative -mt-16 mb-4 md:mb-0">
-                <Avatar className="h-32 w-32 border-4 border-white shadow-xl">
+                <Avatar className={`
+                  h-32 w-32 border-4
+                  ${currentUser.hasVerifiedBadge
+                    ? 'border-yellow-500 ring-2 ring-yellow-500/50 animate-glow-avatar'
+                    : 'border-white shadow-xl'
+                  }
+                `}>
                   <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
                   <AvatarFallback className="text-2xl">{currentUser.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                {/* تمت إزالة زر التحرير هنا */}
               </div>
-
-              {/* User Info */}
               <div className="flex-1 space-y-2">
                 <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
                   <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{currentUser.name}</h1>
                   {currentUser.isVerified && (
-                    <Badge className="bg-blue-500">
+                    <Badge className="bg-blue-500 text-white">
                       <TranslatableText staticKey="profile.verified">Verified</TranslatableText>
+                    </Badge>
+                  )}
+                  {currentUser.isSubscribed && (
+                    <Badge className="bg-yellow-400 text-yellow-900">
+                      <CheckCircle className={`h-4 w-4 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`} />
+                      <TranslatableText staticKey="profile.subscribed">Subscribed</TranslatableText>
+                    </Badge>
+                  )}
+                  {currentUser.hasVerifiedBadge && (
+                    <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900">
+                      <CheckCircle className={`h-4 w-4 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`} />
+                      <TranslatableText staticKey="profile.premium">Premium</TranslatableText>
                     </Badge>
                   )}
                 </div>
@@ -276,8 +282,6 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Action Buttons */}
               <div className={`flex ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2 mt-4 md:mt-0`}>
                 <EditProfileDialog />
                 <Button variant="destructive" onClick={handleLogout}>
@@ -286,8 +290,6 @@ const Profile = () => {
                 </Button>
               </div>
             </div>
-
-            {/* Bio */}
             <div className="mt-6">
               <p className="text-gray-700 leading-relaxed max-w-2xl" dir={direction}>
                 {currentUser.bio}
@@ -298,8 +300,6 @@ const Profile = () => {
                 </a>
               )}
             </div>
-
-            {/* Stats */}
             <div className="grid grid-cols-5 gap-6 mt-6 py-6 border-t border-gray-200">
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-900">{currentUser.stats.trips}</div>
@@ -319,12 +319,6 @@ const Profile = () => {
                   <TranslatableText staticKey="profile.following">Following</TranslatableText>
                 </div>
               </div>
-              {/* <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{currentUser.stats.likes.toLocaleString()}</div>
-                <div className="text-sm text-gray-600">
-                  <TranslatableText staticKey="profile.likes">Likes</TranslatableText>
-                </div>
-              </div> */}
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-900">{currentUser.stats.countries}</div>
                 <div className="text-sm text-gray-600">
@@ -334,8 +328,6 @@ const Profile = () => {
             </div>
           </div>
         </div>
-
-        {/* Content Tabs */}
         <div className="bg-white shadow-sm rounded-lg mt-6 overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="border-b border-gray-100 px-6 pt-6">
@@ -354,8 +346,6 @@ const Profile = () => {
                 </TabsTrigger>
               </TabsList>
             </div>
-
-            {/* My Trips */}
             <TabsContent value="trips" className="px-6 pb-6">
               <div className="space-y-6 pt-2">
                 <div className="flex items-center justify-between">
@@ -369,7 +359,6 @@ const Profile = () => {
                     </Link>
                   </Button>
                 </div>
-                {/* Loading state for trips */}
                 {isLoadingMyTrips && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {[0, 1, 2, 3].map((i) => (
@@ -381,8 +370,6 @@ const Profile = () => {
                     ))}
                   </div>
                 )}
-
-                {/* Error state */}
                 {isErrorMyTrips && !isLoadingMyTrips && (
                   <div className="text-center p-10 bg-gray-50 rounded-lg border">
                     <p className="text-gray-600 mb-4">
@@ -393,8 +380,6 @@ const Profile = () => {
                     </Button>
                   </div>
                 )}
-
-                {/* Empty state */}
                 {!isLoadingMyTrips && !isErrorMyTrips && myTripsMapped.length === 0 && (
                   <div className="text-center p-10 bg-gradient-to-br from-gray-50 to-white rounded-lg border">
                     <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -414,8 +399,6 @@ const Profile = () => {
                     </Button>
                   </div>
                 )}
-
-                {/* Trips grid */}
                 {!isLoadingMyTrips && !isErrorMyTrips && myTripsMapped.length > 0 && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {myTripsMapped.map((trip) => (
@@ -427,8 +410,6 @@ const Profile = () => {
                 )}
               </div>
             </TabsContent>
-
-            {/* Followers */}
             <TabsContent value="followers" className="px-6 pb-6">
               <div className="space-y-6 pt-2">
                 <h3 className="text-xl font-semibold text-gray-900">
@@ -443,8 +424,6 @@ const Profile = () => {
                 </div>
               </div>
             </TabsContent>
-
-            {/* Following */}
             <TabsContent value="following" className="px-6 pb-6">
               <div className="space-y-6 pt-2">
                 <h3 className="text-xl font-semibold text-gray-900">
@@ -457,8 +436,6 @@ const Profile = () => {
                 </div>
               </div>
             </TabsContent>
-
-            {/* Achievements */}
             <TabsContent value="achievements" className="px-6 pb-6">
               <div className="space-y-6 pt-2">
                 <h3 className="text-xl font-semibold text-gray-900">

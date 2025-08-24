@@ -28,6 +28,7 @@ interface TripCardProps {
       id: string;
       name: string;
       avatar?: string;
+      hasVerifiedBadge?: boolean;
     };
     likes: number;
     comments: number;
@@ -51,7 +52,6 @@ const TripCard = ({ trip, variant = 'default' }: TripCardProps) => {
 
   const handleLike = async () => {
     const tripNumericId = Number(trip.id);
-    // optimistic update
     const nextLiked = !isLiked;
     setIsLiked(nextLiked);
     setLikesCount(prev => nextLiked ? prev + 1 : Math.max(0, prev - 1));
@@ -63,7 +63,6 @@ const TripCard = ({ trip, variant = 'default' }: TripCardProps) => {
         await unlikeTrip({ trip_id: tripNumericId }).unwrap();
       }
     } catch (e) {
-      // revert on failure
       setIsLiked(!nextLiked);
       setLikesCount(prev => !nextLiked ? prev + 1 : Math.max(0, prev - 1));
       console.error('Failed to toggle like', e);
@@ -86,7 +85,6 @@ const TripCard = ({ trip, variant = 'default' }: TripCardProps) => {
         url: `/trip/${trip.id}`
       });
     } else {
-      // Fallback for browsers that don't support Web Share API
       navigator.clipboard.writeText(`${t('tripCard.checkOutTrip', 'Check out this amazing trip:')} ${trip.title} - ${window.location.origin}/trip/${trip.id}`);
       toast({
         title: t('tripCard.copied', 'Copied'),
@@ -96,8 +94,12 @@ const TripCard = ({ trip, variant = 'default' }: TripCardProps) => {
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      {/* Trip Image */}
+    <Card className={cn(
+      "overflow-hidden hover:shadow-lg transition-shadow",
+      trip.author.hasVerifiedBadge
+        ? 'border-2 border-yellow-500 animate-glow'
+        : 'border-gray-200'
+    )}>
       <div className={cn("relative overflow-hidden", isCompact ? "h-48" : "h-64")}>
         <img
           src={trip.images[0]}
@@ -114,11 +116,15 @@ const TripCard = ({ trip, variant = 'default' }: TripCardProps) => {
           <span className="text-sm font-medium">{trip.location.city}, {trip.location.country}</span>
         </div>
       </div>
-
       <CardContent className="p-4">
-        {/* Author Info */}
         <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-3 mb-3`}>
-          <Avatar className="h-8 w-8">
+          <Avatar className={`
+            h-8 w-8 border-2
+            ${trip.author.hasVerifiedBadge
+              ? 'border-yellow-500 animate-glow-avatar'
+              : 'border-gray-300'
+            }
+          `}>
             <AvatarImage src={trip.author.avatar} alt={trip.author.name} />
             <AvatarFallback>{trip.author.name.charAt(0)}</AvatarFallback>
           </Avatar>
@@ -135,24 +141,17 @@ const TripCard = ({ trip, variant = 'default' }: TripCardProps) => {
             </div>
           </div>
         </div>
-
-        {/* Trip Info */}
         <div className="space-y-2">
-          <Link
-            to={`/trip/${trip.id}`}
-            className="block"
-          >
+          <Link to={`/trip/${trip.id}`} className="block">
             <h3 className="font-semibold text-lg hover:text-primary transition-colors line-clamp-2" dir={direction}>
               {trip.title}
             </h3>
           </Link>
-
           {!isCompact && (
             <p className="text-muted-foreground text-sm line-clamp-2" dir={direction}>
               {trip.description}
             </p>
           )}
-
           <div className="flex items-center justify-between text-sm">
             <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-4`}>
               <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
@@ -166,8 +165,6 @@ const TripCard = ({ trip, variant = 'default' }: TripCardProps) => {
             </div>
           </div>
         </div>
-
-        {/* Actions */}
         <div className="flex items-center justify-between pt-3 border-t mt-3">
           <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-4`}>
             <Button
@@ -183,7 +180,6 @@ const TripCard = ({ trip, variant = 'default' }: TripCardProps) => {
               <Heart className={cn(`h-4 w-4 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`, isLiked && "fill-current")} />
               {likesCount}
             </Button>
-
             <Button
               variant="ghost"
               size="sm"
@@ -196,7 +192,6 @@ const TripCard = ({ trip, variant = 'default' }: TripCardProps) => {
               </Link>
             </Button>
           </div>
-
           <Button
             variant="ghost"
             size="sm"

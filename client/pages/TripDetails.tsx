@@ -14,7 +14,6 @@ import {
   Calendar,
   Star,
   ArrowLeft,
-  Upload,
   Trash2,
   ImagePlus,
   Film,
@@ -23,12 +22,12 @@ import {
   UserPlus,
   UserMinus,
   Sparkles,
-  RefreshCw,
   CalendarDays,
   AlertTriangle,
   Lightbulb,
   Languages,
-  CircleDollarSign
+  CircleDollarSign,
+  MoreVertical,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGetTripStatsQuery, useLikeTripMutation, useUnlikeTripMutation, useSaveTripMutation, useUnsaveTripMutation, useGetTripLikesQuery, useFollowUserMutation, useUnfollowUserMutation } from '@/store/interactionsApi';
@@ -40,6 +39,8 @@ import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 
 const TripDetails = () => {
   const { tripId } = useParams();
@@ -67,6 +68,9 @@ const TripDetails = () => {
   const [newTagsInput, setNewTagsInput] = useState('');
   const [selectedImageFiles, setSelectedImageFiles] = useState<File[]>([]);
   const [selectedVideoFiles, setSelectedVideoFiles] = useState<File[]>([]);
+  const [isAddImagesModalOpen, setIsAddImagesModalOpen] = useState(false);
+  const [isAddVideosModalOpen, setIsAddVideosModalOpen] = useState(false);
+  const [isAddTagsModalOpen, setIsAddTagsModalOpen] = useState(false);
 
   // Sync local like state with server stats when loaded
   useMemo(() => {
@@ -173,6 +177,7 @@ const TripDetails = () => {
     try {
       await addImages({ tripId, formData: fd }).unwrap();
       setSelectedImageFiles([]);
+      setIsAddImagesModalOpen(false);
       await refetchTrip();
       toast({
         title: t('tripDetails.success', 'Success'),
@@ -193,6 +198,7 @@ const TripDetails = () => {
     try {
       await addVideos({ tripId, formData: fd }).unwrap();
       setSelectedVideoFiles([]);
+      setIsAddVideosModalOpen(false);
       await refetchTrip();
       toast({
         title: t('tripDetails.success', 'Success'),
@@ -202,6 +208,30 @@ const TripDetails = () => {
       toast({
         title: t('tripDetails.error', 'Error'),
         description: t('tripDetails.failedToAddVideos', 'Failed to add videos.')
+      });
+    }
+  };
+
+  const handleAddTags = async () => {
+    if (!tripId || !newTagsInput.trim()) return;
+    const tags = newTagsInput
+      .split(',')
+      .map(t => t.trim())
+      .filter(Boolean);
+    if (!tags.length) return;
+    try {
+      await addTags({ tripId, tags }).unwrap();
+      setNewTagsInput('');
+      setIsAddTagsModalOpen(false);
+      await refetchTrip();
+      toast({
+        title: t('tripDetails.success', 'Success'),
+        description: t('tripDetails.tagsAdded', 'Tags added successfully.')
+      });
+    } catch (e) {
+      toast({
+        title: t('tripDetails.error', 'Error'),
+        description: t('tripDetails.failedToAddTags', 'Failed to add tags.')
       });
     }
   };
@@ -226,25 +256,6 @@ const TripDetails = () => {
       toast({
         title: t('tripDetails.error', 'Error'),
         description: t('tripDetails.failedToDeleteVideo', 'Failed to delete video.')
-      });
-    }
-  };
-
-  const handleAddTags = async () => {
-    if (!tripId || !newTagsInput.trim()) return;
-    const tags = newTagsInput
-      .split(',')
-      .map(t => t.trim())
-      .filter(Boolean);
-    if (!tags.length) return;
-    try {
-      await addTags({ tripId, tags }).unwrap();
-      setNewTagsInput('');
-      await refetchTrip();
-    } catch (e) {
-      toast({
-        title: t('tripDetails.error', 'Error'),
-        description: t('tripDetails.failedToAddTags', 'Failed to add tags.')
       });
     }
   };
@@ -365,7 +376,6 @@ const TripDetails = () => {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3 rtl:space-x-reverse">
                 <Avatar className="h-12 w-12">
-                  {/* No avatar in payload; using fallback */}
                   <AvatarImage src="" alt={trip?.user || 'user'} />
                   <AvatarFallback>{(trip?.user || '?').toString().charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
@@ -416,97 +426,125 @@ const TripDetails = () => {
                   <TranslatableText staticKey={isSaved ? 'tripDetails.saved' : 'tripDetails.save'}>{isSaved ? 'Saved' : 'Save'}</TranslatableText>
                 </Button>
                 {isOwner && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        disabled={deletingTrip}
-                      >
-                        <Trash2 className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                        <TranslatableText staticKey="tripDetails.delete">Delete</TranslatableText>
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          <TranslatableText staticKey="tripDetails.confirmDelete">Confirm Delete</TranslatableText>
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          <TranslatableText staticKey="tripDetails.confirmDeleteDesc">Are you sure you want to delete this trip? This action cannot be undone.</TranslatableText>
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>
-                          <TranslatableText staticKey="tripDetails.cancel">Cancel</TranslatableText>
-                        </AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteTrip}>
+                  <>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align={direction === 'rtl' ? 'start' : 'end'} className="w-48">
+                        <DropdownMenuItem onClick={() => setIsAddImagesModalOpen(true)}>
+                          <ImagePlus className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                          <TranslatableText staticKey="tripDetails.addImages">Add Images</TranslatableText>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setIsAddVideosModalOpen(true)}>
+                          <Film className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                          <TranslatableText staticKey="tripDetails.addVideos">Add Videos</TranslatableText>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setIsAddTagsModalOpen(true)}>
+                          <Tag className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                          <TranslatableText staticKey="tripDetails.addTags">Add Tags</TranslatableText>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          disabled={deletingTrip}
+                        >
+                          <Trash2 className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                           <TranslatableText staticKey="tripDetails.delete">Delete</TranslatableText>
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            <TranslatableText staticKey="tripDetails.confirmDelete">Confirm Delete</TranslatableText>
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            <TranslatableText staticKey="tripDetails.confirmDeleteDesc">Are you sure you want to delete this trip? This action cannot be undone.</TranslatableText>
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>
+                            <TranslatableText staticKey="tripDetails.cancel">Cancel</TranslatableText>
+                          </AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDeleteTrip}>
+                            <TranslatableText staticKey="tripDetails.delete">Delete</TranslatableText>
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </>
                 )}
               </div>
             </div>
 
-            {/* Owner Management */}
+            {/* Owner Management Modals */}
             {isOwner && (
-              <div className="mb-8 space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Add Images */}
-                  <div className="border rounded-lg p-4 bg-gray-50">
-                    <div className="flex items-center gap-2 mb-3">
-                      <ImagePlus className="h-4 w-4" />
-                      <h3 className="font-medium">
+              <>
+                {/* Add Images Modal */}
+                <Dialog open={isAddImagesModalOpen} onOpenChange={setIsAddImagesModalOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>
                         <TranslatableText staticKey="tripDetails.addImages">Add Images</TranslatableText>
-                      </h3>
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <Input type="file" accept="image/*" multiple onChange={onSelectImages} />
+                      <Button onClick={handleAddImages} disabled={addingImages || selectedImageFiles.length === 0} className="w-full">
+                        <ImagePlus className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                        <TranslatableText staticKey="tripDetails.uploadImages">Upload Images</TranslatableText>
+                      </Button>
                     </div>
-                    <input type="file" accept="image/*" multiple onChange={onSelectImages} className="mb-3" />
-                    <Button onClick={handleAddImages} disabled={addingImages || selectedImageFiles.length === 0} className="w-full">
-                      <Upload className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                      <TranslatableText staticKey="tripDetails.uploadImages">Upload Images</TranslatableText>
-                    </Button>
-                  </div>
+                  </DialogContent>
+                </Dialog>
 
-                  {/* Add Videos */}
-                  <div className="border rounded-lg p-4 bg-gray-50">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Film className="h-4 w-4" />
-                      <h3 className="font-medium">
+                {/* Add Videos Modal */}
+                <Dialog open={isAddVideosModalOpen} onOpenChange={setIsAddVideosModalOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>
                         <TranslatableText staticKey="tripDetails.addVideos">Add Videos</TranslatableText>
-                      </h3>
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <Input type="file" accept="video/*" multiple onChange={onSelectVideos} />
+                      <Button onClick={handleAddVideos} disabled={addingVideos || selectedVideoFiles.length === 0} className="w-full">
+                        <Film className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                        <TranslatableText staticKey="tripDetails.uploadVideos">Upload Videos</TranslatableText>
+                      </Button>
                     </div>
-                    <input type="file" accept="video/*" multiple onChange={onSelectVideos} className="mb-3" />
-                    <Button onClick={handleAddVideos} disabled={addingVideos || selectedVideoFiles.length === 0} className="w-full">
-                      <Upload className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                      <TranslatableText staticKey="tripDetails.uploadVideos">Upload Videos</TranslatableText>
-                    </Button>
-                  </div>
-                </div>
+                  </DialogContent>
+                </Dialog>
 
-                {/* Add Tags */}
-                <div className="border rounded-lg p-4 bg-gray-50">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Tag className="h-4 w-4" />
-                    <h3 className="font-medium">
-                      <TranslatableText staticKey="tripDetails.addTags">Add Tags</TranslatableText>
-                    </h3>
-                  </div>
-                  <div className="flex gap-2">
-                    <input
-                      className="flex-1 border rounded px-3 py-2"
-                      placeholder={t('tripDetails.tagsPlaceholder', 'Example: beach, sunset')}
-                      value={newTagsInput}
-                      onChange={(e) => setNewTagsInput(e.target.value)}
-                      dir={direction}
-                    />
-                    <Button onClick={handleAddTags} disabled={addingTags || !newTagsInput.trim()}>
-                      <TranslatableText staticKey="tripDetails.add">Add</TranslatableText>
-                    </Button>
-                  </div>
-                </div>
-              </div>
+                {/* Add Tags Modal */}
+                <Dialog open={isAddTagsModalOpen} onOpenChange={setIsAddTagsModalOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>
+                        <TranslatableText staticKey="tripDetails.addTags">Add Tags</TranslatableText>
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <Input
+                        placeholder={t('tripDetails.tagsPlaceholder', 'Example: beach, sunset')}
+                        value={newTagsInput}
+                        onChange={(e) => setNewTagsInput(e.target.value)}
+                        dir={direction}
+                      />
+                      <Button onClick={handleAddTags} disabled={addingTags || !newTagsInput.trim()} className="w-full">
+                        <Tag className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                        <TranslatableText staticKey="tripDetails.add">Add</TranslatableText>
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </>
             )}
 
             {/* Loading/Error States */}
@@ -575,10 +613,6 @@ const TripDetails = () => {
                 </h2>
                 <div className="flex items-center gap-2">
                   {trip?.tourism_info ? (
-                    // <Button size="sm" variant="outline" onClick={() => handleGenerateTourismInfo(true)} disabled={generatingInfo}>
-                    //   <RefreshCw className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'} ${generatingInfo ? 'animate-spin' : ''}`} />
-                    //   <TranslatableText staticKey="tripDetails.regenerate">Regenerate</TranslatableText>
-                    // </Button>
                     <></>
                   ) : (
                     <Button size="sm" onClick={() => handleGenerateTourismInfo()} disabled={generatingInfo || tripLoading}>
@@ -777,6 +811,7 @@ const TripDetails = () => {
                 </div>
               </div>
             )}
+
             {/* Manage Tags (with delete) */}
             {isOwner && trip?.tags?.length ? (
               <div className="mb-6">

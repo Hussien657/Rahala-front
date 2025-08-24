@@ -14,7 +14,6 @@ import {
   MapPin,
   Calendar,
   Star,
-  Upload,
   ArrowLeft,
   Plus,
   X
@@ -104,7 +103,6 @@ const CreateTrip = () => {
   useEffect(() => {
     const next = imageFiles.map(file => URL.createObjectURL(file));
     setImagePreviews(prev => {
-      // Revoke previous URLs to avoid memory leaks
       prev.forEach(url => URL.revokeObjectURL(url));
       return next;
     });
@@ -162,24 +160,50 @@ const CreateTrip = () => {
     try {
       const fd = new FormData();
       const caption = formData.title || formData.description || '';
-      const locationStr = [formData.location.city, formData.location.country].filter(Boolean).join(', ');
+      const locationStr = [formData.location.city, formData.location.country]
+        .filter(Boolean)
+        .join(', ');
+
       fd.append('caption', caption);
       fd.append('location', locationStr);
       formData.tags.forEach(tag => fd.append('tags', tag));
-      imageFiles.forEach((file) => fd.append('images', file, file.name));
-      videoFiles.forEach((file) => fd.append('videos', file, file.name));
+      imageFiles.forEach(file => fd.append('images', file, file.name));
+      videoFiles.forEach(file => fd.append('videos', file, file.name));
 
       await createTrip(fd).unwrap();
+
       toast({
         title: t('createTrip.successTitle', 'Success'),
-        description: t('createTrip.successMessage', 'Your trip has been posted successfully! 🎉')
+        description: t(
+          'createTrip.successMessage',
+          'Your trip has been posted successfully! 🎉'
+        )
       });
+
       navigate('/feed');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create trip:', error);
+
+      let errorMessage = t(
+        'createTrip.errorMessage',
+        'An error occurred while posting the trip. Please try again.'
+      );
+
+      if (error?.data) {
+        if (typeof error.data.detail === 'string') {
+          errorMessage = error.data.detail;
+        } else if (typeof error.data === 'object') {
+          const messages = Object.values(error.data)
+            .flat()
+            .filter(Boolean)
+            .join(', ');
+          if (messages) errorMessage = messages;
+        }
+      }
+
       toast({
         title: t('createTrip.errorTitle', 'Error'),
-        description: t('createTrip.errorMessage', 'An error occurred while posting the trip. Please try again.')
+        description: errorMessage
       });
     } finally {
       setIsSubmitting(false);
@@ -388,13 +412,7 @@ const CreateTrip = () => {
                     <TranslatableText staticKey="createTrip.images">Images</TranslatableText>
                   </Label>
                   <div className="border-2 border-dashed rounded-lg p-4 bg-white">
-                    <div className="flex items-center justify-between gap-3">
-                      <Input type="file" accept="image/*" multiple onChange={onSelectImages} className="cursor-pointer" />
-                      <Button type="button" variant="outline" className="shrink-0">
-                        <Upload className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                        <TranslatableText staticKey="createTrip.upload">Upload</TranslatableText>
-                      </Button>
-                    </div>
+                    <Input type="file" accept="image/*" multiple onChange={onSelectImages} className="cursor-pointer" />
                     {imagePreviews.length > 0 && (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                         {imagePreviews.map((src, idx) => (
@@ -416,13 +434,7 @@ const CreateTrip = () => {
                     <TranslatableText staticKey="createTrip.videos">Videos</TranslatableText>
                   </Label>
                   <div className="border-2 border-dashed rounded-lg p-4 bg-white">
-                    <div className="flex items-center justify-between gap-3">
-                      <Input type="file" accept="video/*" multiple onChange={onSelectVideos} className="cursor-pointer" />
-                      <Button type="button" variant="outline" className="shrink-0">
-                        <Upload className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                        <TranslatableText staticKey="createTrip.upload">Upload</TranslatableText>
-                      </Button>
-                    </div>
+                    <Input type="file" accept="video/*" multiple onChange={onSelectVideos} className="cursor-pointer" />
                     {videoPreviews.length > 0 && (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                         {videoPreviews.map((src, idx) => (

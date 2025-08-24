@@ -3,8 +3,6 @@ import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import EditProfileDialog from '@/components/EditProfileDialog';
 import LanguageSelector from '@/components/LanguageSelector';
@@ -15,7 +13,6 @@ import {
   Settings as SettingsIcon,
   Bell,
   Lock,
-  Eye,
   Trash2,
   LogOut,
   User
@@ -31,15 +28,7 @@ const Settings = () => {
   const { direction, t } = useLanguage();
   const [changePassword, { isLoading: isChanging }] = useChangePasswordMutation();
   const [notifications, setNotifications] = useState({
-    email: true,
-    push: false,
-    sms: false,
-    marketing: false
-  });
-  const [privacy, setPrivacy] = useState({
-    profilePublic: true,
-    showLocation: true,
-    showEmail: false
+    email: true
   });
 
   const [passwordForm, setPasswordForm] = useState({ current: '', next: '', confirm: '' });
@@ -66,10 +55,6 @@ const Settings = () => {
 
   const handleNotificationChange = (key: string, value: boolean) => {
     setNotifications(prev => ({ ...prev, [key]: value }));
-  };
-
-  const handlePrivacyChange = (key: string, value: boolean) => {
-    setPrivacy(prev => ({ ...prev, [key]: value }));
   };
 
   const handleDeleteAccount = () => {
@@ -204,54 +189,6 @@ const Settings = () => {
                   />
                 </div>
               </div>
-              <Separator />
-              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
-                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
-                  <Label><TranslatableText staticKey="settings.push">الإشعارات المنبثقة</TranslatableText></Label>
-                  <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.pushDesc">تلقي الإشعارات المنبثقة على جهازك</TranslatableText>
-                  </p>
-                </div>
-                <div className="order-1 md:order-2">
-                  <RtlSwitch
-                    checked={notifications.push}
-                    onCheckedChange={(value) => handleNotificationChange('push', value)}
-                    id="push-notifications"
-                  />
-                </div>
-              </div>
-              <Separator />
-              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
-                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
-                  <Label><TranslatableText staticKey="settings.sms">إشعارات الرسائل النصية</TranslatableText></Label>
-                  <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.smsDesc">تلقي الإشعارات عبر الرسائل النصية</TranslatableText>
-                  </p>
-                </div>
-                <div className="order-1 md:order-2">
-                  <RtlSwitch
-                    checked={notifications.sms}
-                    onCheckedChange={(value) => handleNotificationChange('sms', value)}
-                    id="sms-notifications"
-                  />
-                </div>
-              </div>
-              <Separator />
-              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
-                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
-                  <Label><TranslatableText staticKey="settings.marketing">رسائل التسويق</TranslatableText></Label>
-                  <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.marketingDesc">تلقي رسائل البريد الإلكتروني الترويجية والتحديثات</TranslatableText>
-                  </p>
-                </div>
-                <div className="order-1 md:order-2">
-                  <RtlSwitch
-                    checked={notifications.marketing}
-                    onCheckedChange={(value) => handleNotificationChange('marketing', value)}
-                    id="marketing-notifications"
-                  />
-                </div>
-              </div>
             </CardContent>
           </Card>
 
@@ -334,68 +271,6 @@ const Settings = () => {
                   </Button>
                 </div>
               </form>
-            </CardContent>
-          </Card>
-
-          {/* Privacy Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-center md:justify-start">
-                <Eye className={`h-5 w-5 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                <TranslatableText staticKey="settings.privacy">الخصوصية والأمان</TranslatableText>
-              </CardTitle>
-              <CardDescription className="text-center md:text-start">
-                <TranslatableText staticKey="settings.privacyDesc">التحكم في من يمكنه رؤية معلوماتك</TranslatableText>
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
-                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
-                  <Label><TranslatableText staticKey="settings.publicProfile">ملف تعريف عام</TranslatableText></Label>
-                  <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.publicProfileDesc">اجعل ملفك الشخصي مرئيًا للجميع</TranslatableText>
-                  </p>
-                </div>
-                <div className="order-1 md:order-2">
-                  <RtlSwitch
-                    checked={privacy.profilePublic}
-                    onCheckedChange={(value) => handlePrivacyChange('profilePublic', value)}
-                    id="public-profile"
-                  />
-                </div>
-              </div>
-              <Separator />
-              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
-                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
-                  <Label><TranslatableText staticKey="settings.showLocation">إظهار الموقع</TranslatableText></Label>
-                  <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.showLocationDesc">عرض موقعك على ملفك الشخصي</TranslatableText>
-                  </p>
-                </div>
-                <div className="order-1 md:order-2">
-                  <RtlSwitch
-                    checked={privacy.showLocation}
-                    onCheckedChange={(value) => handlePrivacyChange('showLocation', value)}
-                    id="show-location"
-                  />
-                </div>
-              </div>
-              <Separator />
-              <div className="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
-                <div className="space-y-0.5 text-center md:text-start order-2 md:order-1">
-                  <Label><TranslatableText staticKey="settings.showEmail">إظهار البريد الإلكتروني</TranslatableText></Label>
-                  <p className="text-sm text-gray-600">
-                    <TranslatableText staticKey="settings.showEmailDesc">اجعل بريدك الإلكتروني مرئيًا للمستخدمين الآخرين</TranslatableText>
-                  </p>
-                </div>
-                <div className="order-1 md:order-2">
-                  <RtlSwitch
-                    checked={privacy.showEmail}
-                    onCheckedChange={(value) => handlePrivacyChange('showEmail', value)}
-                    id="show-email"
-                  />
-                </div>
-              </div>
             </CardContent>
           </Card>
 

@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -13,6 +14,10 @@ export default {
       },
     },
     extend: {
+      animation: {
+        glow: 'glow 2s ease-in-out infinite',
+        'glow-avatar': 'glow 2s ease-in-out infinite',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -64,6 +69,11 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        glow: {
+          '0%': { boxShadow: '0 0 8px rgba(234, 179, 8, 0.3)' },
+          '50%': { boxShadow: '0 0 12px rgba(234, 179, 8, 0.5)' },
+          '100%': { boxShadow: '0 0 8px rgba(234, 179, 8, 0.3)' },
+        },
         "accordion-down": {
           from: {
             height: "0",

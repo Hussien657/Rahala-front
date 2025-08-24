@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -108,14 +108,12 @@ const Explore = () => {
     }
   ];
 
-  // Accumulate paginated explore data
   useEffect(() => {
     if (exploreData?.results) {
       setExploreItems(prev => (page === 1 ? exploreData.results : [...prev, ...exploreData.results]));
     }
   }, [exploreData, page]);
 
-  // Map API FeedItem -> TripCard shape
   const mappedTrips = useMemo(() => {
     return exploreItems.map((item) => {
       const firstImage = item.images?.[0]?.image || item.videos?.[0]?.video || 'https://images.unsplash.com/photo-1520975916090-3105956dac38?w=800&h=600&fit=crop';
@@ -130,10 +128,15 @@ const Explore = () => {
         category: tagCategory,
         rating: 4.8,
         duration: '—',
-        author: { id: String(item.user || '0'), name: String(item.user || 'Traveler'), avatar: undefined },
-        likes: 0,
-        comments: 0,
-        isLiked: false,
+        author: {
+          id: String(item.user?.id || item.user || '0'),
+          name: String(item.user?.username || item.user || 'Traveler'),
+          avatar: item.user?.avatar,
+          hasVerifiedBadge: !!item.user?.subscription_status?.has_verified_badge,
+        },
+        likes: item.likes_count || 0,
+        comments: item.comments_count || 0,
+        isLiked: item.is_liked || false,
         createdAt: item.created_at,
       };
     });
@@ -173,7 +176,6 @@ const Explore = () => {
   return (
     <div className="min-h-screen bg-gray-50" dir={direction}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
         <div className="text-center mb-12">
           <div className={`flex items-center justify-center ${direction === 'rtl' ? 'space-x-reverse' : ''} mb-4`}>
             <img
@@ -189,8 +191,6 @@ const Explore = () => {
             <TranslatableText staticKey="explore.subtitle">Discover amazing destinations, get inspired by fellow travelers, and plan your next adventure</TranslatableText>
           </p>
         </div>
-
-        {/* Advanced Search */}
         <div className="mb-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3">
             <Card>
@@ -204,12 +204,8 @@ const Explore = () => {
                   showPopular={true}
                   enableRateLimitHandling={true}
                 />
-                {/* Main Content */}
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                   <TabsList className="my-8">
-                    {/* <TabsTrigger value="destinations">
-                      <TranslatableText staticKey="explore.destinations">Destinations</TranslatableText>
-                    </TabsTrigger> */}
                     <TabsTrigger value="trips">
                       <TranslatableText staticKey="explore.featuredTrips">Featured Trips</TranslatableText>
                     </TabsTrigger>
@@ -217,104 +213,6 @@ const Explore = () => {
                       <TranslatableText staticKey="explore.topTravelers">Top Travelers</TranslatableText>
                     </TabsTrigger>
                   </TabsList>
-
-                  {/* Destinations Tab */}
-                  <TabsContent value="destinations">
-                    {/* Categories */}
-                    <div className="mb-8">
-                      <h3 className="text-lg font-semibold mb-4">
-                        <TranslatableText staticKey="explore.browseByCategory">Browse by Category</TranslatableText>
-                      </h3>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                        {categories.map((category) => (
-                          <Card
-                            key={category.id}
-                            className={`cursor-pointer transition-all hover:shadow-md ${activeCategory === category.id ? 'ring-2 ring-primary' : ''
-                              }`}
-                            onClick={() => setActiveCategory(category.id)}
-                          >
-                            <CardContent className="p-4 text-center">
-                              <div className="flex justify-center mb-2">
-                                <div className={`p-2 rounded-full ${activeCategory === category.id ? 'bg-primary text-white' : 'bg-gray-100'
-                                  }`}>
-                                  <category.icon className="h-5 w-5" />
-                                </div>
-                              </div>
-                              <h4 className="font-medium text-sm mb-1">{category.label}</h4>
-                              <p className="text-xs text-gray-500">
-                                {category.count} <TranslatableText staticKey="explore.trips">trips</TranslatableText>
-                              </p>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Destinations Grid */}
-                    <div className="mb-8">
-                      <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-semibold">
-                          {activeCategory === 'all' ?
-                            <TranslatableText staticKey="explore.popularDestinations">Popular Destinations</TranslatableText> :
-                            `${categories.find(c => c.id === activeCategory)?.label} ${t('explore.destinations', 'Destinations')}`
-                          }
-                        </h3>
-                        <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2 text-sm text-gray-600`}>
-                          <span>
-                            {filteredDestinations.length} <TranslatableText staticKey="explore.destinationsFound">destinations found</TranslatableText>
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredDestinations.map((destination) => (
-                          <Card key={destination.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-                            <div className="relative h-48">
-                              <img
-                                src={destination.image}
-                                alt={destination.name}
-                                className="w-full h-full object-cover"
-                              />
-                              {destination.trending && (
-                                <Badge className={`absolute top-3 ${direction === 'rtl' ? 'left-3' : 'right-3'} bg-red-500`}>
-                                  <TrendingUp className={`h-3 w-3 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`} />
-                                  <TranslatableText staticKey="explore.trending">Trending</TranslatableText>
-                                </Badge>
-                              )}
-                              <div className="absolute bottom-3 left-3 right-3">
-                                <div className="bg-black/50 rounded-lg p-2 text-white">
-                                  <h4 className="font-semibold text-lg">{destination.name}</h4>
-                                  <p className="text-sm opacity-90">{destination.description}</p>
-                                </div>
-                              </div>
-                            </div>
-                            <CardContent className="p-4">
-                              <div className="flex items-center justify-between">
-                                <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-4`}>
-                                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
-                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                    <span className="font-medium">{destination.rating}</span>
-                                  </div>
-                                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-1`}>
-                                    <Camera className="h-4 w-4 text-gray-500" />
-                                    <span className="text-sm text-gray-600">
-                                      {destination.tripsCount} <TranslatableText staticKey="explore.trips">trips</TranslatableText>
-                                    </span>
-                                  </div>
-                                </div>
-                                <Button size="sm">
-                                  <MapPin className={`h-4 w-4 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`} />
-                                  <TranslatableText staticKey="explore.explore">Explore</TranslatableText>
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  {/* Featured Trips Tab */}
                   <TabsContent value="trips">
                     <div className="mb-6">
                       <div className="flex items-center justify-between">
@@ -334,7 +232,6 @@ const Explore = () => {
                         </div>
                       </div>
                     </div>
-
                     {isError && (
                       <Card className="mb-6">
                         <CardContent className="p-4 text-red-600">
@@ -342,7 +239,6 @@ const Explore = () => {
                         </CardContent>
                       </Card>
                     )}
-
                     {isLoading && page === 1 ? (
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {Array.from({ length: 4 }).map((_, i) => (
@@ -387,8 +283,6 @@ const Explore = () => {
                       </>
                     )}
                   </TabsContent>
-
-                  {/* Top Travelers Tab */}
                   <TabsContent value="travelers">
                     <div className="mb-6">
                       <h3 className="text-lg font-semibold mb-2">
@@ -412,8 +306,6 @@ const Explore = () => {
             <SearchStats className="sticky top-24" />
           </div>
         </div>
-
-
       </div>
     </div>
   );

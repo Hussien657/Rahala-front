@@ -169,6 +169,7 @@ const Navbar = () => {
                           </Badge>
                           {user?.isVerified && <Badge variant="outline" className="text-xs">Verified</Badge>}
                         </div>
+                        
                       </div>
                     </div>
                     <DropdownMenuSeparator />
