@@ -246,31 +246,14 @@ const Login = () => {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
-                        <Checkbox
-                          id="remember"
-                          checked={formData.remember}
-                          onCheckedChange={(checked) => handleChange('remember', checked as boolean)}
-                        />
-                        <Label htmlFor="remember" className="text-sm">
-                          <TranslatableText staticKey="login.rememberMe">Remember me</TranslatableText>
-                        </Label>
+                      
                       </div>
                       <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                         <TranslatableText staticKey="login.forgotPassword">Forgot password?</TranslatableText>
                       </Link>
                     </div>
 
-                    <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2 p-3 bg-red-50 rounded-lg border border-red-200`}>
-                      <Checkbox
-                        id="adminLogin"
-                        checked={formData.loginAsAdmin}
-                        onCheckedChange={(checked) => handleChange('loginAsAdmin', checked as boolean)}
-                      />
-                      <Label htmlFor="adminLogin" className="text-sm text-red-700 font-medium">
-                        <TranslatableText staticKey="login.loginAsAdmin">Login as Administrator</TranslatableText>
-                      </Label>
-                      <Shield className="h-4 w-4 text-red-600" />
-                    </div>
+                   
                   </div>
 
                   <Button type="submit" disabled={isLoading} className={`w-full h-11 ${formData.loginAsAdmin ? 'bg-red-600 hover:bg-red-700' : ''}`}>

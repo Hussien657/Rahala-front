@@ -159,17 +159,17 @@ const Navbar = () => {
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <div className="flex items-center justify-start gap-2 p-2">
                       <div className="flex flex-col space-y-1 leading-none">
-                        <p className="font-medium">{user?.name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{user?.name}</p>
+                          {user?.subscription_status?.is_active && (
+                            <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-0.5">
+                              <TranslatableText staticKey="nav.premium" fallback="Premium">Premium</TranslatableText>
+                            </Badge>
+                          )}
+                        </div>
                         <p className="w-[200px] truncate text-sm text-muted-foreground">
                           {user?.email}
                         </p>
-                        <div className="flex items-center space-x-1">
-                          <Badge variant={isAdmin ? "default" : "secondary"} className="text-xs">
-                            {isAdmin ? "Admin" : "User"}
-                          </Badge>
-                          {user?.isVerified && <Badge variant="outline" className="text-xs">Verified</Badge>}
-                        </div>
-                        
                       </div>
                     </div>
                     <DropdownMenuSeparator />
@@ -177,12 +177,6 @@ const Navbar = () => {
                       <Link to="/profile">
                         <User className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                         <TranslatableText staticKey="nav.profile">Profile</TranslatableText>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/notifications" className="flex items-center">
-                        <NotificationBadge className={`${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                        <TranslatableText staticKey="nav.notifications">Notifications</TranslatableText>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>

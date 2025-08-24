@@ -20,6 +20,11 @@ interface UserCardProps {
     isFollowing?: boolean;
     isVerified?: boolean;
     coverImage?: string;
+    subscription_status?: {
+      is_active: boolean;
+      has_verified_badge: boolean;
+      plan?: string;
+    };
   };
   variant?: 'default' | 'compact';
   onToggleFollow?: (userId: string, nextState: boolean) => Promise<void> | void;
@@ -65,9 +70,9 @@ const UserCard = ({ user, variant = 'default', onToggleFollow }: UserCardProps) 
                 >
                   {user.name}
                 </Link>
-                {user.isVerified && (
-                  <Badge variant="secondary" className="text-xs">
-                    <TranslatableText staticKey="userCard.verified">Verified</TranslatableText>
+                {user.subscription_status?.is_active && (
+                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs">
+                    <TranslatableText staticKey="userCard.premium" fallback="Premium">Premium</TranslatableText>
                   </Badge>
                 )}
               </div>
@@ -128,9 +133,9 @@ const UserCard = ({ user, variant = 'default', onToggleFollow }: UserCardProps) 
             >
               {user.name}
             </Link>
-            {user.isVerified && (
-              <Badge variant="secondary">
-                <TranslatableText staticKey="userCard.verified">Verified</TranslatableText>
+            {user.subscription_status?.is_active && (
+              <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                <TranslatableText staticKey="userCard.premium" fallback="Premium">Premium</TranslatableText>
               </Badge>
             )}
           </div>

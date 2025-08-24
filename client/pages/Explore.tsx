@@ -114,6 +114,13 @@ const Explore = () => {
     }
   }, [exploreData, page]);
 
+  // Reset page when refreshing
+  const handleRefresh = () => {
+    setPage(1);
+    setExploreItems([]);
+    refetch();
+  };
+
   const mappedTrips = useMemo(() => {
     return exploreItems.map((item) => {
       const firstImage = item.images?.[0]?.image || item.videos?.[0]?.video || 'https://images.unsplash.com/photo-1520975916090-3105956dac38?w=800&h=600&fit=crop';
@@ -225,7 +232,7 @@ const Explore = () => {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm" onClick={() => { setPage(1); setExploreItems([]); refetch(); }} disabled={isFetching}>
+                          <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={isFetching}>
                             <Filter className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                             <TranslatableText staticKey="explore.refresh">Refresh</TranslatableText>
                           </Button>
@@ -272,12 +279,22 @@ const Explore = () => {
                         </div>
                         {Boolean(exploreData?.next) && (
                           <div className="text-center mt-6">
-                            <Button variant="outline" onClick={() => setPage((p) => p + 1)} disabled={isFetching}>
+                            <Button
+                              variant="outline"
+                              onClick={() => setPage((p) => p + 1)}
+                              disabled={isFetching}
+                              className="min-w-[120px]"
+                            >
                               {isFetching ?
                                 <TranslatableText staticKey="explore.loading">Loading…</TranslatableText> :
                                 <TranslatableText staticKey="explore.loadMore">Load more</TranslatableText>
                               }
                             </Button>
+                          </div>
+                        )}
+                        {!exploreData?.next && exploreItems.length > 0 && (
+                          <div className="text-center mt-6 text-gray-500">
+                            <TranslatableText staticKey="explore.noMoreResults">No more adventures to load</TranslatableText>
                           </div>
                         )}
                       </>

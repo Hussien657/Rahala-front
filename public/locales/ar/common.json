@@ -11,7 +11,8 @@
     "signin": "تسجيل الدخول",
     "joinnow": "انضم الآن",
     "sharetrip": "شارك رحلة",
-    "search": "البحث عن وجهات..."
+    "search": "البحث عن وجهات...",
+    "premium": "بريميوم"
   },
   "explore": {
     "title": "استكشف العالم",
@@ -20,7 +21,14 @@
     "featuredTrips": "الرحلات المميزة",
     "topTravelers": "أفضل المسافرين",
     "topTravelersDesc": "تابع المسافرين الملهمين واحصل على رؤى حصرية",
-    "loading": "جاري التحميل..."
+    "exploreTrips": "استكشف الرحلات",
+    "exploreTripsDesc": "اكتشف الرحلات المذهلة التي يشاركها مجتمعنا",
+    "refresh": "تحديث",
+    "loading": "جاري التحميل...",
+    "loadMore": "تحميل المزيد",
+    "noMoreResults": "لا توجد مغامرات أخرى للتحميل",
+    "failedToLoadTrips": "فشل في تحميل الرحلات. يرجى المحاولة مرة أخرى.",
+    "all": "الكل"
   },
   "settings": {
     "title": "الإعدادات",
@@ -144,5 +152,17 @@
     "popularSearches": "البحثات الشائعة",
     "searchCount": "بحث",
     "results": "نتائج"
+  },
+  "userCard": {
+    "premium": "بريميوم"
+  },
+  "userProfile": {
+    "premium": "بريميوم",
+    "follow": "متابعة",
+    "followingStatus": "يتابع",
+    "followError": "لا يمكن تحديث حالة المتابعة."
+  },
+  "feed": {
+    "loading": "جاري تحميل المزيد من المغامرات..."
   }
 }

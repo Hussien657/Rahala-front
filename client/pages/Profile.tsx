@@ -250,17 +250,8 @@ const Profile = () => {
               <div className="flex-1 space-y-2">
                 <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
                   <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{currentUser.name}</h1>
-                  {currentUser.isVerified && (
-                    <Badge className="bg-blue-500 text-white">
-                      <TranslatableText staticKey="profile.verified">Verified</TranslatableText>
-                    </Badge>
-                  )}
-                  {currentUser.isSubscribed && (
-                    <Badge className="bg-yellow-400 text-yellow-900">
-                      <CheckCircle className={`h-4 w-4 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`} />
-                      <TranslatableText staticKey="profile.subscribed">Subscribed</TranslatableText>
-                    </Badge>
-                  )}
+                  
+                  
                   {currentUser.hasVerifiedBadge && (
                     <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900">
                       <CheckCircle className={`h-4 w-4 ${direction === 'rtl' ? 'ml-1' : 'mr-1'}`} />
@@ -436,35 +427,7 @@ const Profile = () => {
                 </div>
               </div>
             </TabsContent>
-            <TabsContent value="achievements" className="px-6 pb-6">
-              <div className="space-y-6 pt-2">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  <TranslatableText staticKey="profile.travelAchievements">Travel Achievements</TranslatableText>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {achievements.map((achievement, index) => (
-                    <Card key={index} className={`${achievement.earned ? 'border-primary bg-primary/5' : 'border-gray-200 opacity-60'}`}>
-                      <CardContent className="p-6">
-                        <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-4`}>
-                          <div className={`p-3 rounded-full ${achievement.earned ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'}`}>
-                            <achievement.icon className="h-6 w-6" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-lg">{achievement.title}</h4>
-                            <p className="text-gray-600">{achievement.description}</p>
-                            {achievement.earned && (
-                              <Badge className="mt-2">
-                                <TranslatableText staticKey="profile.earned">Earned</TranslatableText>
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
+            
           </Tabs>
         </div>
       </div>

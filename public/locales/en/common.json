@@ -11,7 +11,8 @@
     "signin": "Sign In",
     "joinnow": "Join Now",
     "sharetrip": "Share Trip",
-    "search": "Search destinations..."
+    "search": "Search destinations...",
+    "premium": "Premium"
   },
   "explore": {
     "title": "Explore the World",
@@ -20,7 +21,14 @@
     "featuredTrips": "Featured Trips",
     "topTravelers": "Top Travelers",
     "topTravelersDesc": "Follow inspiring travelers and get exclusive insights",
-    "loading": "Loading…"
+    "exploreTrips": "Explore Trips",
+    "exploreTripsDesc": "Discover amazing trips shared by our community",
+    "refresh": "Refresh",
+    "loading": "Loading…",
+    "loadMore": "Load more",
+    "noMoreResults": "No more adventures to load",
+    "failedToLoadTrips": "Failed to load trips. Please try again.",
+    "all": "All"
   },
   "settings": {
     "title": "Settings",
@@ -144,5 +152,17 @@
     "popularSearches": "Popular Searches",
     "searchCount": "searches",
     "results": "results"
+  },
+  "userCard": {
+    "premium": "Premium"
+  },
+  "userProfile": {
+    "premium": "Premium",
+    "follow": "Follow",
+    "followingStatus": "Following",
+    "followError": "Could not update follow status."
+  },
+  "feed": {
+    "loading": "Loading more adventures..."
   }
 }
