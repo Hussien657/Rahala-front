@@ -4,6 +4,7 @@ import { Search, User, Hash, Clock, TrendingUp, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import TranslatableText from './TranslatableText';
 import {
   useLazyQuickSearchQuery,
   useLazyGetSearchSuggestionsQuery,
@@ -29,7 +30,7 @@ interface AdvancedSearchProps {
 }
 
 const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
-  placeholder = 'البحث...',
+  placeholder = 'Search...',
   className = '',
   onResultSelect,
   showHistory = true,
@@ -40,8 +41,8 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
 }) => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { direction } = useLanguage();
-  
+  const { direction, t } = useLanguage();
+
   // States
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -50,7 +51,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [searchError, setSearchError] = useState<SearchError | null>(null);
   const [isRateLimited, setIsRateLimited] = useState(false);
-  
+
   // Refs
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchDropdownRef = useRef<HTMLDivElement>(null);
@@ -110,7 +111,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
         if (error.status === 429 && enableRateLimitHandling) {
           setIsRateLimited(true);
           setSearchError({
-            error: 'تم تجاوز الحد المسموح من الطلبات. يرجى المحاولة بعد قليل.',
+            error: t('search.rateLimitExceeded', 'Rate limit exceeded. Please try again later.'),
             error_code: 'RATE_LIMITED'
           });
         } else if (error.data?.error) {
@@ -122,7 +123,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
         } else {
           // Handle network errors
           setSearchError({
-            error: 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.',
+            error: t('search.connectionError', 'Connection error. Please try again.'),
             error_code: 'NETWORK_ERROR'
           });
         }
@@ -131,7 +132,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
         setSuggestions([]);
       }
     }, 300),
-    [triggerQuickSearch, triggerSuggestions, maxResults, showSuggestions, enableRateLimitHandling]
+    [triggerQuickSearch, triggerSuggestions, maxResults, showSuggestions, enableRateLimitHandling, t]
   );
 
   // Handle search input changes
@@ -212,7 +213,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
   const handleClearHistory = async () => {
     try {
       const result = await clearHistory().unwrap();
-      console.log(`تم مسح ${result.deleted_count} عنصر من تاريخ البحث`);
+      console.log(`Cleared ${result.deleted_count} items from search history`);
     } catch (error) {
       console.error('Failed to clear search history:', error);
     }
@@ -227,12 +228,12 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
   return (
     <div className={cn('relative', className)}>
       <form onSubmit={handleSearch} className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <Search className={`absolute ${direction === 'rtl' ? 'right-3' : 'left-3'} top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4`} />
         <input
           ref={searchInputRef}
           type="text"
           placeholder={placeholder}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+          className={`w-full ${direction === 'rtl' ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200`}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={handleSearchFocus}
@@ -242,7 +243,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
           <button
             type="button"
             onClick={() => setSearchQuery('')}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className={`absolute ${direction === 'rtl' ? 'left-3' : 'right-3'} top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600`}
           >
             <X className="h-4 w-4" />
           </button>
@@ -259,25 +260,26 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
           {isSearchLoading && (
             <div className="p-4 text-center text-gray-500">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
-              <span className="mt-2 block">جاري البحث...</span>
+              <span className="mt-2 block">
+                <TranslatableText staticKey="search.searching">Searching...</TranslatableText>
+              </span>
             </div>
           )}
 
           {/* Error State */}
           {searchError && (
             <div className="p-4 text-center">
-              <div className={`p-3 rounded-lg ${
-                searchError.error_code === 'RATE_LIMITED'
+              <div className={`p-3 rounded-lg ${searchError.error_code === 'RATE_LIMITED'
                   ? 'bg-yellow-50 text-yellow-800 border border-yellow-200'
                   : 'bg-red-50 text-red-800 border border-red-200'
-              }`}>
+                }`}>
                 <div className="font-medium mb-1">
-                  {searchError.error_code === 'RATE_LIMITED' ? '⚠️ تحذير' : '❌ خطأ'}
+                  {searchError.error_code === 'RATE_LIMITED' ? t('search.warning', '⚠️ Warning') : t('search.error', '❌ Error')}
                 </div>
                 <div className="text-sm">{searchError.error}</div>
                 {isRateLimited && (
                   <div className="text-xs mt-2 opacity-75">
-                    الحد المسموح: 120 طلب/دقيقة للبحث السريع
+                    <TranslatableText staticKey="search.rateLimitInfo">Rate limit: 120 requests/minute for quick search</TranslatableText>
                   </div>
                 )}
               </div>
@@ -288,7 +290,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
           {searchResults.length > 0 && (
             <div className="border-b border-gray-100">
               <div className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50">
-                نتائج البحث
+                <TranslatableText staticKey="search.searchResults">Search Results</TranslatableText>
               </div>
               {searchResults.map((result, index) => (
                 <div
@@ -316,7 +318,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                           {result.display_name}
                         </div>
                         <div className="text-sm text-gray-500 truncate">
-                          @{result.username} • {result.followers_count} متابع
+                          @{result.username} • {result.followers_count} {result.followers_count === 1 ? t('search.follower', 'follower') : t('search.followers', 'followers')}
                         </div>
                       </div>
                     </>
@@ -332,7 +334,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                           {result.display_name}
                         </div>
                         <div className="text-sm text-gray-500 truncate">
-                          {result.trips_count} رحلة
+                          {result.trips_count} {result.trips_count === 1 ? t('search.trip', 'trip') : t('search.trips', 'trips')}
                         </div>
                       </div>
                     </>
@@ -346,7 +348,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
           {searchSuggestions.length > 0 && searchQuery.trim() && showSuggestions && (
             <div className="border-b border-gray-100">
               <div className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50">
-                اقتراحات
+                <TranslatableText staticKey="search.suggestions">Suggestions</TranslatableText>
               </div>
               {searchSuggestions.map((suggestion, index) => (
                 <div
@@ -378,15 +380,17 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
           {searchHistory.length > 0 && !searchQuery.trim() && showHistory && (
             <div className="border-b border-gray-100">
               <div className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 flex items-center justify-between">
-                <div className="flex items-center space-x-2">
+                <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
                   <Clock className="h-4 w-4" />
-                  <span>البحثات الأخيرة</span>
+                  <span>
+                    <TranslatableText staticKey="search.recentSearches">Recent Searches</TranslatableText>
+                  </span>
                 </div>
                 <button
                   onClick={handleClearHistory}
                   className="text-xs text-gray-500 hover:text-gray-700"
                 >
-                  مسح الكل
+                  <TranslatableText staticKey="search.clearAll">Clear All</TranslatableText>
                 </button>
               </div>
               {searchHistory.map((item, index) => (
@@ -395,12 +399,12 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center justify-between"
                   onClick={() => handleHistoryClick(item)}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-3`}>
                     <Clock className="h-4 w-4 text-gray-400" />
                     <span className="text-gray-900">{item.query}</span>
                   </div>
                   <span className="text-xs text-gray-500">
-                    {item.results_count} نتيجة
+                    {item.results_count} {item.results_count === 1 ? t('search.result', 'result') : t('search.results', 'results')}
                   </span>
                 </div>
               ))}
@@ -410,9 +414,11 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
           {/* Popular Searches */}
           {popularSearches.length > 0 && !searchQuery.trim() && showPopular && !searchHistory.length && (
             <div>
-              <div className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 flex items-center space-x-2">
+              <div className={`px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
                 <TrendingUp className="h-4 w-4" />
-                <span>البحثات الشائعة</span>
+                <span>
+                  <TranslatableText staticKey="search.popularSearches">Popular Searches</TranslatableText>
+                </span>
               </div>
               {popularSearches.map((item, index) => (
                 <div
@@ -420,13 +426,13 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center justify-between"
                   onClick={() => handlePopularSearchClick(item)}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-3`}>
                     <TrendingUp className="h-4 w-4 text-blue-500" />
                     <span className="text-gray-900">{item.query}</span>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
                     <span className="text-xs text-gray-500">
-                      {item.search_count} بحث
+                      {item.search_count} {item.search_count === 1 ? t('search.search', 'search') : t('search.searches', 'searches')}
                     </span>
                     <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                   </div>
@@ -439,8 +445,12 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
           {!isSearchLoading && searchQuery.trim() && searchResults.length === 0 && searchSuggestions.length === 0 && (
             <div className="p-4 text-center text-gray-500">
               <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-              <div>لا توجد نتائج لـ "{searchQuery}"</div>
-              <div className="text-sm mt-1">جرب كلمات مختلفة أو تحقق من الإملاء</div>
+              <div>
+                <TranslatableText staticKey="search.noResults">No results found for</TranslatableText> "{searchQuery}"
+              </div>
+              <div className="text-sm mt-1">
+                <TranslatableText staticKey="search.tryDifferentWords">Try different words or check spelling</TranslatableText>
+              </div>
             </div>
           )}
         </div>

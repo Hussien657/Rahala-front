@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useGetFeedQuery } from '@/store/feedApi';
+import { useGetSuggestedTravelersQuery, useFollowUserMutation, useUnfollowUserMutation } from '@/store/interactionsApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -25,6 +26,9 @@ const Feed = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const { data, isLoading, isError, refetch } = useGetFeedQuery();
+  const { data: suggestedData, isLoading: isLoadingSuggested, isError: isErrorSuggested } = useGetSuggestedTravelersQuery();
+  const [followUser] = useFollowUserMutation();
+  const [unfollowUser] = useUnfollowUserMutation();
   const { direction, t } = useLanguage();
 
   const handleLoadMore = () => {
@@ -34,60 +38,29 @@ const Feed = () => {
     }, 1000);
   };
 
+  const handleFollowToggle = async (userId: string, nextState: boolean) => {
+    try {
+      if (nextState) {
+        await followUser({ user_id: parseInt(userId) }).unwrap();
+      } else {
+        await unfollowUser({ user_id: parseInt(userId) }).unwrap();
+      }
+    } catch (error) {
+      console.error('Follow toggle failed:', error);
+      throw error;
+    }
+  };
+
   const categories = [
     'Adventure', 'Beach', 'Culture', 'Nature', 'City', 'Food', 'History', 'Photography'
   ];
 
   const feedTrips = useMemo(() => {
     const items = data?.results || [];
-    return items.map((it) => ({
-      id: String(it.id),
-      title: it.caption,
-      description: it.caption,
-      images: it.images?.length ? [it.images[0].image!] : ['https://via.placeholder.com/800x600?text=Trip'],
-      location: { country: it.location, city: it.location },
-      category: it.tags?.[0]?.tripTag || 'Trip',
-      rating: 5,
-      duration: '—',
-      author: {
-        id: String(it.user?.id || it.user || '0'),
-        name: String(it.user?.username || it.user || 'Traveler'),
-        avatar: it.user?.avatar,
-        hasVerifiedBadge: !!it.user?.subscription_status?.has_verified_badge,
-      },
-      likes: it.likes_count || 0,
-      comments: it.comments_count || 0,
-      isLiked: it.is_liked || false,
-      createdAt: it.created_at,
-    }));
+    return items;
   }, [data]);
 
-  const suggestedUsers = [
-    {
-      id: 'suggested1',
-      name: 'Sarah Johnson',
-      location: 'Paris, France',
-      tripsCount: 45,
-      followersCount: 3200,
-      isFollowing: false
-    },
-    {
-      id: 'suggested2',
-      name: 'Alex Chen',
-      location: 'Tokyo, Japan',
-      tripsCount: 38,
-      followersCount: 2800,
-      isFollowing: false
-    },
-    {
-      id: 'suggested3',
-      name: 'Maria Costa',
-      location: 'Barcelona, Spain',
-      tripsCount: 52,
-      followersCount: 4100,
-      isFollowing: false
-    }
-  ];
+  const suggestedUsers = suggestedData?.results || [];
 
   return (
     <div className="min-h-screen bg-gray-50" dir={direction}>
@@ -145,15 +118,11 @@ const Feed = () => {
               )}
               {(() => {
                 const filteredTrips = feedTrips.filter(trip => {
-                  if (searchQuery && !trip.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-                    !trip.description.toLowerCase().includes(searchQuery.toLowerCase()) &&
-                    !trip.location.city.toLowerCase().includes(searchQuery.toLowerCase()) &&
-                    !trip.location.country.toLowerCase().includes(searchQuery.toLowerCase())) {
+                  if (searchQuery && !trip.caption.toLowerCase().includes(searchQuery.toLowerCase()) &&
+                    !trip.location.toLowerCase().includes(searchQuery.toLowerCase())) {
                     return false;
                   }
-                  if (activeCategory && trip.category !== activeCategory) {
-                    return false;
-                  }
+                  // Note: FeedItem doesn't have category, so we'll skip category filtering for now
                   return true;
                 });
 
@@ -206,9 +175,50 @@ const Feed = () => {
                   </h3>
                 </div>
                 <div className="space-y-4">
-                  {suggestedUsers.map((user) => (
-                    <UserCard key={user.id} user={user} variant="compact" />
-                  ))}
+                  {isLoadingSuggested && (
+                    <div className="space-y-3">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="flex items-center space-x-3">
+                          <Skeleton className="h-12 w-12 rounded-full" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-2/3" />
+                            <Skeleton className="h-3 w-full" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {isErrorSuggested && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>
+                        <TranslatableText staticKey="feed.failedToLoadSuggested">Failed to load suggested travelers</TranslatableText>
+                      </AlertTitle>
+                      <AlertDescription>
+                        <TranslatableText staticKey="feed.pleaseRetryMessage">Please try again.</TranslatableText>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {!isLoadingSuggested && !isErrorSuggested && suggestedUsers.length > 0 && (
+                    <>
+                      {suggestedUsers.slice(0, 4).map((user) => (
+                        <UserCard
+                          key={user.id}
+                          user={user}
+                          variant="compact"
+                          onToggleFollow={handleFollowToggle}
+                        />
+                      ))}
+                    </>
+                  )}
+                  {!isLoadingSuggested && !isErrorSuggested && suggestedUsers.length === 0 && (
+                    <div className="text-center py-6">
+                      <div className="text-gray-400 text-4xl mb-2">👥</div>
+                      <p className="text-sm text-gray-500">
+                        <TranslatableText staticKey="feed.noSuggestedTravelers">No suggested travelers at the moment</TranslatableText>
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <Button variant="outline" className="w-full mt-4" asChild>
                   <Link to="/explore">

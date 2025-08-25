@@ -116,6 +116,44 @@ export type MessageResponse = {
     count?: number;
 };
 
+export type TopTravelerUser = {
+    id: string;
+    name: string;
+    avatar: string;
+    bio: string;
+    location: string;
+    tripsCount: number;
+    followersCount: number;
+    isFollowing: boolean;
+    isVerified: boolean;
+};
+
+export type PaginatedTopTravelers = {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: TopTravelerUser[];
+};
+
+export type SuggestedTravelerUser = {
+    id: string;
+    name: string;
+    avatar: string;
+    bio: string;
+    location: string;
+    tripsCount: number;
+    followersCount: number;
+    isFollowing: boolean;
+    isVerified: boolean;
+};
+
+export type PaginatedSuggestedTravelers = {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: SuggestedTravelerUser[];
+};
+
 export const interactionsApi = baseApi.injectEndpoints({
     endpoints: (build) => ({
         getTripStats: build.query<TripStats, string | number>({
@@ -212,15 +250,15 @@ export const interactionsApi = baseApi.injectEndpoints({
                 method: 'POST',
                 body,
             }),
-            invalidatesTags: ['Likes', 'User'],
+            invalidatesTags: ['Likes', 'User', 'TopTravelers'],
         }),
         unfollowUser: build.mutation<unknown, { user_id: number }>({
             query: (body) => ({
                 url: 'api/interactions/unfollow/',
-                method: 'POST',
+                method: 'DELETE',
                 body,
             }),
-            invalidatesTags: ['Likes', 'User'],
+            invalidatesTags: ['Likes', 'User', 'TopTravelers'],
         }),
         updateComment: build.mutation<TripComment, { pk: number; content: string; trip_id: number }>({
             query: ({ pk, content }) => ({
@@ -314,6 +352,22 @@ export const interactionsApi = baseApi.injectEndpoints({
                 body: settings,
             }),
         }),
+        getTopTravelers: build.query<PaginatedTopTravelers, { page?: number; page_size?: number } | void>({
+            query: (params) => ({
+                url: 'api/interactions/travelers/top/',
+                method: 'GET',
+                params: params ? (params as Record<string, any>) : undefined,
+            }),
+            providesTags: ['TopTravelers'],
+        }),
+        getSuggestedTravelers: build.query<PaginatedSuggestedTravelers, { page?: number; page_size?: number } | void>({
+            query: (params) => ({
+                url: 'api/interactions/travelers/suggested/',
+                method: 'GET',
+                params: params ? (params as Record<string, any>) : undefined,
+            }),
+            providesTags: ['SuggestedTravelers'],
+        }),
     }),
 });
 
@@ -338,7 +392,9 @@ export const {
     useMarkNotificationReadRealtimeMutation,
     useDeleteNotificationMutation,
     useGetNotificationSettingsQuery,
-    useUpdateNotificationSettingsMutation
+    useUpdateNotificationSettingsMutation,
+    useGetTopTravelersQuery,
+    useGetSuggestedTravelersQuery
 } = interactionsApi;
 export const { useGetUserFollowersQuery, useGetUserFollowingQuery, useGetUserStatsQuery } = interactionsApi;
 

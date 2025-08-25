@@ -141,7 +141,7 @@ const TripDetails = () => {
   };
 
   const handleShare = () => {
-    const shareTitle = trip?.caption || 'Trip';
+    const shareTitle = trip?.caption || t('tripDetails.tripDetails', 'Trip Details');
     const shareText = trip?.location ? `${shareTitle} - ${trip.location}` : shareTitle;
     if (navigator.share) {
       navigator.share({
@@ -327,7 +327,7 @@ const TripDetails = () => {
             ) : primaryImage ? (
               <img
                 src={primaryImage}
-                alt={trip?.caption || 'Trip image'}
+                alt={trip?.caption || t('tripDetails.tripDetails', 'Trip Details')}
                 className="w-full h-full object-cover"
               />
             ) : hasVideo ? (
@@ -374,7 +374,7 @@ const TripDetails = () => {
           <CardContent className="p-6">
             {/* Author & Actions */}
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-3`}>
                 <Avatar className="h-12 w-12">
                   <AvatarImage src="" alt={trip?.user || 'user'} />
                   <AvatarFallback>{(trip?.user || '?').toString().charAt(0).toUpperCase()}</AvatarFallback>
@@ -393,7 +393,7 @@ const TripDetails = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
+              <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
                 <Button
                   variant="outline"
                   size="sm"

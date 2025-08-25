@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Link } from 'react-router-dom';
 import TranslatableText from './TranslatableText';
 
@@ -19,6 +20,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({
     variant = 'icon'
 }) => {
     const { unreadCount, isConnected } = useNotifications();
+    const { t } = useLanguage();
 
     const hasUnread = unreadCount > 0;
     const displayCount = unreadCount > 99 ? '99+' : unreadCount.toString();
@@ -58,7 +60,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({
                             "absolute -bottom-1 -right-1 h-2 w-2 rounded-full",
                             isConnected ? "bg-green-500" : "bg-gray-400"
                         )}
-                        title={isConnected ? "متصل" : "غير متصل"}
+                        title={isConnected ? t('notifications.connected', 'Connected') : t('notifications.disconnected', 'Disconnected')}
                     />
                 </Button>
             </Link>
@@ -88,7 +90,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({
                     "absolute -bottom-1 -right-1 h-2 w-2 rounded-full",
                     isConnected ? "bg-green-500" : "bg-gray-400"
                 )}
-                title={isConnected ? "متصل" : "غير متصل"}
+                title={isConnected ? t('notifications.connected', 'Connected') : t('notifications.disconnected', 'Disconnected')}
             />
         </Link>
     );
