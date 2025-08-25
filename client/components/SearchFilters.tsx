@@ -10,6 +10,8 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
+import TranslatableText from './TranslatableText';
 
 export interface SearchFilters {
   type?: 'all' | 'users' | 'tags';
@@ -32,6 +34,7 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
   onFiltersChange,
   className = '',
 }) => {
+  const { direction, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
   const updateFilter = (key: keyof SearchFilters, value: any) => {
@@ -62,23 +65,23 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
 
   const activeFiltersCount = getActiveFiltersCount();
 
-  const countries = [
-    'مصر', 'السعودية', 'الإمارات', 'الكويت', 'قطر', 'البحرين', 'عمان',
-    'الأردن', 'لبنان', 'سوريا', 'العراق', 'المغرب', 'الجزائر', 'تونس',
-    'ليبيا', 'السودان', 'اليمن', 'فلسطين'
-  ];
+  const countries = t('searchFilters.countries', [
+    'Egypt', 'Saudi Arabia', 'United Arab Emirates', 'Kuwait', 'Qatar', 'Bahrain', 'Oman',
+    'Jordan', 'Lebanon', 'Syria', 'Iraq', 'Morocco', 'Algeria', 'Tunisia',
+    'Libya', 'Sudan', 'Yemen', 'Palestine'
+  ]);
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn('relative', className)} dir={direction}>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
             size="sm"
-            className="flex items-center space-x-2"
+            className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}
           >
             <Filter className="h-4 w-4" />
-            <span>فلاتر</span>
+            <TranslatableText staticKey="searchFilters.filters">Filters</TranslatableText>
             {activeFiltersCount > 0 && (
               <Badge variant="secondary" className="ml-1 px-1.5 py-0.5 text-xs">
                 {activeFiltersCount}
@@ -87,11 +90,13 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="w-80 p-4" align="end">
+        <DropdownMenuContent className="w-80 p-4" align={direction === 'rtl' ? 'start' : 'end'}>
           <div className="space-y-4">
             {/* Header */}
-            <div className="flex items-center justify-between">
-              <h3 className="font-medium text-gray-900">فلاتر البحث</h3>
+            <div className={`flex items-center justify-between ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
+              <h3 className="font-medium text-gray-900">
+                <TranslatableText staticKey="searchFilters.searchFilters">Search Filters</TranslatableText>
+              </h3>
               {activeFiltersCount > 0 && (
                 <Button
                   variant="ghost"
@@ -99,7 +104,7 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
                   onClick={clearFilters}
                   className="text-xs text-gray-500 hover:text-gray-700"
                 >
-                  مسح الكل
+                  <TranslatableText staticKey="searchFilters.clearAll">Clear All</TranslatableText>
                 </Button>
               )}
             </div>
@@ -109,14 +114,14 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
             {/* Search Type */}
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                نوع البحث
+                <TranslatableText staticKey="searchFilters.searchType">Search Type</TranslatableText>
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { value: 'all', label: 'الكل', icon: Filter },
-                  { value: 'users', label: 'مستخدمين', icon: Users },
-                  { value: 'tags', label: 'تاجز', icon: Hash },
-                ].map(({ value, label, icon: Icon }) => (
+                  { value: 'all', key: 'searchFilters.typeAll', label: 'All', icon: Filter },
+                  { value: 'users', key: 'searchFilters.typeUsers', label: 'Users', icon: Users },
+                  { value: 'tags', key: 'searchFilters.typeTags', label: 'Tags', icon: Hash },
+                ].map(({ value, key, label, icon: Icon }) => (
                   <button
                     key={value}
                     onClick={() => updateFilter('type', value)}
@@ -128,7 +133,7 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
                     )}
                   >
                     <Icon className="h-4 w-4 mb-1" />
-                    {label}
+                    <TranslatableText staticKey={key}>{label}</TranslatableText>
                   </button>
                 ))}
               </div>
@@ -138,17 +143,19 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
             {filters.type !== 'tags' && (
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  البلد
+                  <TranslatableText staticKey="searchFilters.country">Country</TranslatableText>
                 </label>
                 <select
                   value={filters.country || ''}
                   onChange={(e) => updateFilter('country', e.target.value || undefined)}
                   className="w-full p-2 border border-gray-300 rounded-lg text-sm"
                 >
-                  <option value="">جميع البلدان</option>
-                  {countries.map((country) => (
-                    <option key={country} value={country}>
-                      {country}
+                  <option value="">
+                    <TranslatableText staticKey="searchFilters.allCountries">All Countries</TranslatableText>
+                  </option>
+                  {countries.map((country, index) => (
+                    <option key={index} value={country}>
+                      <TranslatableText staticKey={`searchFilters.countries.${index}`}>{country}</TranslatableText>
                     </option>
                   ))}
                 </select>
@@ -159,14 +166,14 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
             {filters.type !== 'tags' && (
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  الجنس
+                  <TranslatableText staticKey="searchFilters.gender">Gender</TranslatableText>
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { value: undefined, label: 'الكل' },
-                    { value: 'M', label: 'ذكر' },
-                    { value: 'F', label: 'أنثى' },
-                  ].map(({ value, label }) => (
+                    { value: undefined, key: 'searchFilters.genderAll', label: 'All' },
+                    { value: 'M', key: 'searchFilters.genderMale', label: 'Male' },
+                    { value: 'F', key: 'searchFilters.genderFemale', label: 'Female' },
+                  ].map(({ value, key, label }) => (
                     <button
                       key={label}
                       onClick={() => updateFilter('gender', value)}
@@ -177,7 +184,7 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
                           : 'border-gray-200 hover:border-gray-300'
                       )}
                     >
-                      {label}
+                      <TranslatableText staticKey={key}>{label}</TranslatableText>
                     </button>
                   ))}
                 </div>
@@ -187,14 +194,16 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
             {/* Verified Filter (for users) */}
             {filters.type !== 'tags' && (
               <div>
-                <label className="flex items-center space-x-2">
+                <label className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
                   <input
                     type="checkbox"
                     checked={filters.verified || false}
                     onChange={(e) => updateFilter('verified', e.target.checked || undefined)}
                     className="rounded border-gray-300"
                   />
-                  <span className="text-sm text-gray-700">المستخدمين الموثقين فقط</span>
+                  <span className="text-sm text-gray-700">
+                    <TranslatableText staticKey="searchFilters.verifiedOnly">Verified Users Only</TranslatableText>
+                  </span>
                 </label>
               </div>
             )}
@@ -203,19 +212,27 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
             {filters.type !== 'tags' && (
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  الحد الأدنى للمتابعين
+                  <TranslatableText staticKey="searchFilters.minFollowers">Minimum Followers</TranslatableText>
                 </label>
                 <select
                   value={filters.minFollowers || ''}
                   onChange={(e) => updateFilter('minFollowers', e.target.value ? parseInt(e.target.value) : undefined)}
                   className="w-full p-2 border border-gray-300 rounded-lg text-sm"
                 >
-                  <option value="">أي عدد</option>
-                  <option value="10">10+ متابع</option>
-                  <option value="50">50+ متابع</option>
-                  <option value="100">100+ متابع</option>
-                  <option value="500">500+ متابع</option>
-                  <option value="1000">1000+ متابع</option>
+                  <option value="">
+                    <TranslatableText staticKey="searchFilters.anyNumber">Any Number</TranslatableText>
+                  </option>
+                  {[
+                    { value: 10, key: 'searchFilters.followers10', label: '10+ followers' },
+                    { value: 50, key: 'searchFilters.followers50', label: '50+ followers' },
+                    { value: 100, key: 'searchFilters.followers100', label: '100+ followers' },
+                    { value: 500, key: 'searchFilters.followers500', label: '500+ followers' },
+                    { value: 1000, key: 'searchFilters.followers1000', label: '1000+ followers' },
+                  ].map(({ value, key, label }) => (
+                    <option key={value} value={value}>
+                      <TranslatableText staticKey={key}>{label}</TranslatableText>
+                    </option>
+                  ))}
                 </select>
               </div>
             )}
@@ -224,18 +241,26 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
             {filters.type !== 'users' && (
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  الحد الأدنى للرحلات
+                  <TranslatableText staticKey="searchFilters.minTrips">Minimum Trips</TranslatableText>
                 </label>
                 <select
                   value={filters.minTrips || ''}
                   onChange={(e) => updateFilter('minTrips', e.target.value ? parseInt(e.target.value) : undefined)}
                   className="w-full p-2 border border-gray-300 rounded-lg text-sm"
                 >
-                  <option value="">أي عدد</option>
-                  <option value="5">5+ رحلات</option>
-                  <option value="10">10+ رحلات</option>
-                  <option value="25">25+ رحلات</option>
-                  <option value="50">50+ رحلات</option>
+                  <option value="">
+                    <TranslatableText staticKey="searchFilters.anyNumber">Any Number</TranslatableText>
+                  </option>
+                  {[
+                    { value: 5, key: 'searchFilters.trips5', label: '5+ trips' },
+                    { value: 10, key: 'searchFilters.trips10', label: '10+ trips' },
+                    { value: 25, key: 'searchFilters.trips25', label: '25+ trips' },
+                    { value: 50, key: 'searchFilters.trips50', label: '50+ trips' },
+                  ].map(({ value, key, label }) => (
+                    <option key={value} value={value}>
+                      <TranslatableText staticKey={key}>{label}</TranslatableText>
+                    </option>
+                  ))}
                 </select>
               </div>
             )}
@@ -243,14 +268,14 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
             {/* Sort By */}
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
-                ترتيب النتائج
+                <TranslatableText staticKey="searchFilters.sortBy">Sort By</TranslatableText>
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { value: 'relevance', label: 'الصلة' },
-                  { value: 'popularity', label: 'الشعبية' },
-                  { value: 'recent', label: 'الأحدث' },
-                ].map(({ value, label }) => (
+                  { value: 'relevance', key: 'searchFilters.sortRelevance', label: 'Relevance' },
+                  { value: 'popularity', key: 'searchFilters.sortPopularity', label: 'Popularity' },
+                  { value: 'recent', key: 'searchFilters.sortRecent', label: 'Recent' },
+                ].map(({ value, key, label }) => (
                   <button
                     key={value}
                     onClick={() => updateFilter('sortBy', value)}
@@ -261,7 +286,7 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
                         : 'border-gray-200 hover:border-gray-300'
                     )}
                   >
-                    {label}
+                    <TranslatableText staticKey={key}>{label}</TranslatableText>
                   </button>
                 ))}
               </div>
@@ -272,13 +297,15 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
 
       {/* Active Filters Display */}
       {activeFiltersCount > 0 && (
-        <div className="flex flex-wrap gap-1 mt-2">
+        <div className={`flex flex-wrap gap-1 mt-2 ${direction === 'rtl' ? 'justify-end' : 'justify-start'}`}>
           {filters.type && filters.type !== 'all' && (
             <Badge variant="secondary" className="text-xs">
-              {filters.type === 'users' ? 'مستخدمين' : 'تاجز'}
+              <TranslatableText staticKey={`searchFilters.type${filters.type.charAt(0).toUpperCase() + filters.type.slice(1)}`}>
+                {filters.type === 'users' ? 'Users' : 'Tags'}
+              </TranslatableText>
               <button
                 onClick={() => updateFilter('type', 'all')}
-                className="ml-1 hover:text-red-600"
+                className={`ml-1 hover:text-red-600 ${direction === 'rtl' ? 'mr-1 ml-0' : ''}`}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -286,10 +313,12 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
           )}
           {filters.country && (
             <Badge variant="secondary" className="text-xs">
-              {filters.country}
+              <TranslatableText staticKey={`searchFilters.countries.${countries.indexOf(filters.country)}`}>
+                {filters.country}
+              </TranslatableText>
               <button
                 onClick={() => updateFilter('country', undefined)}
-                className="ml-1 hover:text-red-600"
+                className={`ml-1 hover:text-red-600 ${direction === 'rtl' ? 'mr-1 ml-0' : ''}`}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -297,10 +326,10 @@ const SearchFiltersComponent: React.FC<SearchFiltersProps> = ({
           )}
           {filters.verified && (
             <Badge variant="secondary" className="text-xs">
-              موثق
+              <TranslatableText staticKey="searchFilters.verified">Verified</TranslatableText>
               <button
                 onClick={() => updateFilter('verified', undefined)}
-                className="ml-1 hover:text-red-600"
+                className={`ml-1 hover:text-red-600 ${direction === 'rtl' ? 'mr-1 ml-0' : ''}`}
               >
                 <X className="h-3 w-3" />
               </button>

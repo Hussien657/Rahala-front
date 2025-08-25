@@ -46,6 +46,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         setStaticTranslations(translations);
       } catch (error) {
         console.error('Failed to load translations:', error);
+        setStaticTranslations({});
       }
     };
 

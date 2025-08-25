@@ -9,6 +9,11 @@ export interface User {
   avatar?: string;
   role: UserRole;
   isVerified?: boolean;
+  subscription_status?: {
+    is_active: boolean;
+    has_verified_badge: boolean;
+    plan?: string;
+  };
 }
 
 interface AuthContextType {

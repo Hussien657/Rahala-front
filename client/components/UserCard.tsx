@@ -20,6 +20,11 @@ interface UserCardProps {
     isFollowing?: boolean;
     isVerified?: boolean;
     coverImage?: string;
+    subscription_status?: {
+      is_active: boolean;
+      has_verified_badge: boolean;
+      plan?: string;
+    };
   };
   variant?: 'default' | 'compact';
   onToggleFollow?: (userId: string, nextState: boolean) => Promise<void> | void;
@@ -82,10 +87,10 @@ const UserCard = ({ user, variant = 'default', onToggleFollow }: UserCardProps) 
                 >
                   {user.name}
                 </Link>
-                {user.isVerified && (
-                  <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">
+                {user.subscription_status?.is_active && (
+                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs bg-primary/10 text-primary border-primary/20">
                     <Shield className="h-3 w-3 mr-1" />
-                    <TranslatableText staticKey="userCard.verified">Verified</TranslatableText>
+                    <TranslatableText staticKey="userCard.premium" fallback="Premium">Premium</TranslatableText>
                   </Badge>
                 )}
               </div>
@@ -183,10 +188,10 @@ const UserCard = ({ user, variant = 'default', onToggleFollow }: UserCardProps) 
             >
               {user.name}
             </Link>
-            {user.isVerified && (
-              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+            {user.subscription_status?.is_active && (
+              <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white" className="bg-primary/10 text-primary border-primary/20">
                 <Shield className="h-3 w-3 mr-1" />
-                <TranslatableText staticKey="userCard.verified">Verified</TranslatableText>
+                <TranslatableText staticKey="userCard.premium" fallback="Premium">Premium</TranslatableText>
               </Badge>
             )}
           </div>
@@ -234,8 +239,8 @@ const UserCard = ({ user, variant = 'default', onToggleFollow }: UserCardProps) 
           <div className={`flex ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-3 pt-2`}>
             <Button
               className={`flex-1 transition-all duration-300 ${isFollowing
-                  ? 'bg-white border-2 border-primary text-primary hover:bg-red-50 hover:text-red-600 hover:border-red-200'
-                  : 'bg-gradient-to-r from-primary to-accent hover:shadow-lg text-white'
+                ? 'bg-white border-2 border-primary text-primary hover:bg-red-50 hover:text-red-600 hover:border-red-200'
+                : 'bg-gradient-to-r from-primary to-accent hover:shadow-lg text-white'
                 }`}
               variant={isFollowing ? "outline" : "default"}
               onClick={handleFollow}

@@ -194,9 +194,9 @@ const UserProfile = () => {
                   <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
                     {profileUser.profile.first_name} {profileUser.profile.last_name}
                   </h1>
-                  {profileUser.is_verified && (
-                    <Badge className="bg-blue-500">
-                      <TranslatableText staticKey="userProfile.verified">Verified</TranslatableText>
+                  {profileUser.subscription_status?.is_active && (
+                    <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                      <TranslatableText staticKey="userProfile.premium" fallback="Premium">Premium</TranslatableText>
                     </Badge>
                   )}
                 </div>
@@ -276,9 +276,7 @@ const UserProfile = () => {
                 <TabsTrigger value="trips">
                   <TranslatableText staticKey="userProfile.travelStories">Travel Stories</TranslatableText>
                 </TabsTrigger>
-                <TabsTrigger value="achievements">
-                  <TranslatableText staticKey="userProfile.achievements">Achievements</TranslatableText>
-                </TabsTrigger>
+                
               </TabsList>
             </div>
 
@@ -329,33 +327,7 @@ const UserProfile = () => {
             </TabsContent>
 
             {/* Achievements */}
-            <TabsContent value="achievements" className="px-6 pb-6">
-              <div className="space-y-6 pt-2">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  <TranslatableText staticKey="userProfile.travelAchievements">Travel Achievements</TranslatableText>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {achievements.map((achievement, index) => (
-                    <Card key={index} className="border-primary bg-primary/5">
-                      <CardContent className="p-6">
-                        <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-4`}>
-                          <div className="p-3 rounded-full bg-primary text-white">
-                            <achievement.icon className="h-6 w-6" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-lg">{achievement.title}</h4>
-                            <p className="text-gray-600">{achievement.description}</p>
-                            <Badge className="mt-2">
-                              <TranslatableText staticKey="userProfile.earned">Earned</TranslatableText>
-                            </Badge>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
+            
           </Tabs>
         </div>
       </div>

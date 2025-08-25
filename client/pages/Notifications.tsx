@@ -141,7 +141,7 @@ const NotificationItem = ({ notification, onMarkAsRead, onFollowBack, onDelete }
           {notification.type === 'follow' && notification.user && (
             <div className="mt-2">
               <Button size="sm" variant="outline" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onFollowBack && onFollowBack(notification.user!.id); }}>
-                <TranslatableText staticKey="notifications.followBack">Follow Back</TranslatableText>
+                <TranslatableText staticKey="notifications.followBack" fallback="Follow Back">Follow Back</TranslatableText>
               </Button>
             </div>
           )}
@@ -169,7 +169,7 @@ const NotificationItem = ({ notification, onMarkAsRead, onFollowBack, onDelete }
           {!notification.isRead && (
             <Badge variant="default" className="h-2 w-2 p-0 rounded-full">
               <span className="sr-only">
-                <TranslatableText staticKey="notifications.unread">Unread</TranslatableText>
+                <TranslatableText staticKey="notifications.unread" fallback="Unread">Unread</TranslatableText>
               </span>
             </Badge>
           )}
@@ -311,10 +311,10 @@ const Notifications = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  <TranslatableText staticKey="notifications.title">Notifications</TranslatableText>
+                  <TranslatableText staticKey="notifications.title" fallback="Notifications">Notifications</TranslatableText>
                 </h1>
                 <p className="text-gray-600 mt-1">
-                  <TranslatableText staticKey="notifications.subtitle">Stay updated with your travel community</TranslatableText>
+                  <TranslatableText staticKey="notifications.subtitle" fallback="Stay updated with your travel community">Stay updated with your travel community</TranslatableText>
                   {unreadCount > 0 && (
                     <span className={`${direction === 'rtl' ? 'mr-2' : 'ml-2'} text-primary font-medium`}>
                       {unreadCount} {unreadCount > 1 ?
@@ -331,7 +331,7 @@ const Notifications = () => {
             <Link to="/notifications/settings">
               <Button variant="outline" size="sm" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
-                <TranslatableText staticKey="notifications.settings">Settings</TranslatableText>
+                <TranslatableText staticKey="notifications.notificationSettings" fallback="Settings">Settings</TranslatableText>
               </Button>
             </Link>
           </div>
@@ -344,13 +344,13 @@ const Notifications = () => {
               <TabsList className="w-full grid grid-cols-5">
                 <TabsTrigger value="all" className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
                   <BellRing className="h-4 w-4" />
-                  <span><TranslatableText staticKey="notifications.all">All</TranslatableText></span>
+                  <span><TranslatableText staticKey="notifications.all" fallback="All">All</TranslatableText></span>
                   <Badge variant="secondary" className={direction === 'rtl' ? 'mr-1' : 'ml-1'}>
                     {items.length}
                   </Badge>
                 </TabsTrigger>
                 <TabsTrigger value="unread">
-                  <TranslatableText staticKey="notifications.unread">Unread</TranslatableText>
+                  <TranslatableText staticKey="notifications.unread" fallback="Unread">Unread</TranslatableText>
                   {unreadCount > 0 && (
                     <Badge className={direction === 'rtl' ? 'mr-1' : 'ml-1'}>
                       {unreadCount}
@@ -358,13 +358,13 @@ const Notifications = () => {
                   )}
                 </TabsTrigger>
                 <TabsTrigger value="interactions">
-                  <TranslatableText staticKey="notifications.interactions">Interactions</TranslatableText>
+                  <TranslatableText staticKey="notifications.interactions" fallback="Interactions">Interactions</TranslatableText>
                 </TabsTrigger>
                 <TabsTrigger value="follows">
-                  <TranslatableText staticKey="notifications.follows">Follows</TranslatableText>
+                  <TranslatableText staticKey="notifications.follows" fallback="Follows">Follows</TranslatableText>
                 </TabsTrigger>
                 <TabsTrigger value="trips">
-                  <TranslatableText staticKey="notifications.trips">Trips</TranslatableText>
+                  <TranslatableText staticKey="notifications.trips" fallback="Trips">Trips</TranslatableText>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -375,11 +375,11 @@ const Notifications = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span><TranslatableText staticKey="notifications.recentActivity">Recent Activity</TranslatableText></span>
+              <span><TranslatableText staticKey="notifications.recentActivity" fallback="Recent Activity">Recent Activity</TranslatableText></span>
               <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} gap-2`}>
                 <Button variant="ghost" size="sm" onClick={() => refetch()} disabled={isFetching}>
                   <Filter className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                  <TranslatableText staticKey="notifications.refresh">Refresh</TranslatableText>
+                  <TranslatableText staticKey="notifications.refresh" fallback="Refresh">Refresh</TranslatableText>
                 </Button>
                 <Button variant="outline" size="sm" onClick={async () => {
                   // optimistic all-read
@@ -391,7 +391,7 @@ const Notifications = () => {
                   }
                   catch (e) { toast({ title: t('common.error', 'Error'), description: t('notifications.markAllError', 'Failed to mark all as read.') }); }
                 }} disabled={markingAll || unreadCount === 0}>
-                  <TranslatableText staticKey="notifications.markAllAsRead">Mark all as read</TranslatableText>
+                  <TranslatableText staticKey="notifications.markAllAsRead" fallback="Mark all as read">Mark all as read</TranslatableText>
                 </Button>
               </div>
             </CardTitle>
@@ -402,10 +402,10 @@ const Notifications = () => {
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>
-                    <TranslatableText staticKey="notifications.failedToLoad">Failed to load notifications</TranslatableText>
+                    <TranslatableText staticKey="notifications.failedToLoad" fallback="Failed to load notifications">Failed to load notifications</TranslatableText>
                   </AlertTitle>
                   <AlertDescription>
-                    <TranslatableText staticKey="notifications.pleaseRetry">Please try again.</TranslatableText>
+                    <TranslatableText staticKey="notifications.pleaseRetry" fallback="Please try again.">Please try again.</TranslatableText>
                   </AlertDescription>
                 </Alert>
               </div>
@@ -416,7 +416,7 @@ const Notifications = () => {
                 <div className="h-6 bg-gray-100 rounded animate-pulse" />
                 <div className="h-6 bg-gray-100 rounded animate-pulse" />
                 <div className="text-center text-sm text-gray-500 mt-4">
-                  <TranslatableText staticKey="notifications.loading">Loading...</TranslatableText>
+                  <TranslatableText staticKey="notifications.loading" fallback="Loading...">Loading...</TranslatableText>
                 </div>
               </div>
             ) : filteredNotifications.length > 0 ? (
@@ -437,13 +437,13 @@ const Notifications = () => {
                   <Bell className="h-8 w-8 text-gray-400" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  <TranslatableText staticKey="notifications.noNotifications">No notifications</TranslatableText>
+                  <TranslatableText staticKey="notifications.noNotifications" fallback="No notifications">No notifications</TranslatableText>
                 </h3>
                 <p className="text-gray-500">
                   {filter === 'unread' ? (
-                    <TranslatableText staticKey="notifications.allCaughtUp">You're all caught up! No unread notifications.</TranslatableText>
+                    <TranslatableText staticKey="notifications.allCaughtUp" fallback="You're all caught up! No unread notifications.">You're all caught up! No unread notifications.</TranslatableText>
                   ) : (
-                    <TranslatableText staticKey="notifications.whenPeopleInteract">When people interact with your trips, you'll see notifications here.</TranslatableText>
+                    <TranslatableText staticKey="notifications.whenPeopleInteract" fallback="When people interact with your trips, you'll see notifications here.">When people interact with your trips, you'll see notifications here.</TranslatableText>
                   )}
                 </p>
               </div>
@@ -457,8 +457,8 @@ const Notifications = () => {
             <Button variant="outline" onClick={() => setPage(p => p + 1)} disabled={isFetching}>
               <MoreHorizontal className={`h-4 w-4 ${direction === 'rtl' ? 'ml-2' : 'mr-2'}`} />
               {isFetching ?
-                <TranslatableText staticKey="notifications.loading">Loading...</TranslatableText> :
-                <TranslatableText staticKey="notifications.loadOlder">Load older notifications</TranslatableText>
+                <TranslatableText staticKey="notifications.loading" fallback="Loading...">Loading...</TranslatableText> :
+                <TranslatableText staticKey="notifications.loadOlder" fallback="Load older notifications">Load older notifications</TranslatableText>
               }
             </Button>
           </div>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .rtl {
+            direction: rtl;
+            text-align: right;
+        }
+        .ltr {
+            direction: ltr;
+            text-align: left;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Translation System Test</h1>
+    
+    <div class="test-section">
+        <h2>Language Files Test</h2>
+        <button onclick="testEnglishTranslations()">Test English Translations</button>
+        <button onclick="testArabicTranslations()">Test Arabic Translations</button>
+        <div id="translation-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>RTL/LTR Test</h2>
+        <div class="ltr">
+            <h3>English (LTR)</h3>
+            <p>This is English text that should flow from left to right.</p>
+            <p>Settings • Profile • Notifications</p>
+        </div>
+        <div class="rtl">
+            <h3>العربية (RTL)</h3>
+            <p>هذا نص عربي يجب أن يتدفق من اليمين إلى اليسار.</p>
+            <p>الإعدادات • الملف الشخصي • الإشعارات</p>
+        </div>
+    </div>
+
+    <script>
+        async function testEnglishTranslations() {
+            try {
+                const response = await fetch('/locales/en/common.json');
+                const translations = await response.json();
+                
+                const results = document.getElementById('translation-results');
+                results.innerHTML = `
+                    <h4>English Translations:</h4>
+                    <ul>
+                        <li>settings.title: ${translations.settings?.title || 'NOT FOUND'}</li>
+                        <li>settings.profile: ${translations.settings?.profile || 'NOT FOUND'}</li>
+                        <li>settings.notifications: ${translations.settings?.notifications || 'NOT FOUND'}</li>
+                        <li>settings.changePassword: ${translations.settings?.changePassword || 'NOT FOUND'}</li>
+                        <li>settings.memberSince: ${translations.settings?.memberSince || 'NOT FOUND'}</li>
+                    </ul>
+                `;
+            } catch (error) {
+                document.getElementById('translation-results').innerHTML = `
+                    <p style="color: red;">Error loading English translations: ${error.message}</p>
+                `;
+            }
+        }
+
+        async function testArabicTranslations() {
+            try {
+                const response = await fetch('/locales/ar/common.json');
+                const translations = await response.json();
+                
+                const results = document.getElementById('translation-results');
+                results.innerHTML = `
+                    <h4>Arabic Translations:</h4>
+                    <ul dir="rtl">
+                        <li>settings.title: ${translations.settings?.title || 'NOT FOUND'}</li>
+                        <li>settings.profile: ${translations.settings?.profile || 'NOT FOUND'}</li>
+                        <li>settings.notifications: ${translations.settings?.notifications || 'NOT FOUND'}</li>
+                        <li>settings.changePassword: ${translations.settings?.changePassword || 'NOT FOUND'}</li>
+                        <li>settings.memberSince: ${translations.settings?.memberSince || 'NOT FOUND'}</li>
+                    </ul>
+                `;
+            } catch (error) {
+                document.getElementById('translation-results').innerHTML = `
+                    <p style="color: red;">Error loading Arabic translations: ${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

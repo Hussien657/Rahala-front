@@ -88,7 +88,7 @@ const NotificationSettingsPage: React.FC = () => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8" dir={direction}>
             <div className="max-w-2xl mx-auto">
                 {/* Header */}
                 <div className={`flex items-center gap-4 mb-6 ${direction === 'rtl' ? 'flex-row-reverse' : ''}`}>
@@ -99,12 +99,12 @@ const NotificationSettingsPage: React.FC = () => {
                     </Link>
                     <div>
                         <h1 className="text-2xl font-bold">
-                            <TranslatableText staticKey="notifications.settings.title">
+                            <TranslatableText staticKey="notifications.settings.title" fallback="Notification Settings">
                                 إعدادات الإشعارات
                             </TranslatableText>
                         </h1>
                         <p className="text-muted-foreground">
-                            <TranslatableText staticKey="notifications.settings.description">
+                            <TranslatableText staticKey="notifications.settings.description" fallback="Control what types of notifications you want to receive">
                                 تحكم في أنواع الإشعارات التي تريد استقبالها
                             </TranslatableText>
                         </p>
@@ -115,12 +115,12 @@ const NotificationSettingsPage: React.FC = () => {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Bell className="h-5 w-5" />
-                            <TranslatableText staticKey="notifications.settings.activityTitle">
+                            <TranslatableText staticKey="notifications.settings.activityTitle" fallback="Activity Notifications">
                                 إشعارات النشاط
                             </TranslatableText>
                         </CardTitle>
                         <CardDescription>
-                            <TranslatableText staticKey="notifications.settings.activityDescription">
+                            <TranslatableText staticKey="notifications.settings.activityDescription" fallback="Choose what types of activity you want to be notified about">
                                 اختر أنواع النشاط التي تريد الحصول على إشعارات بشأنها
                             </TranslatableText>
                         </CardDescription>
@@ -132,12 +132,12 @@ const NotificationSettingsPage: React.FC = () => {
                                 <Heart className="h-5 w-5 text-red-500" />
                                 <div>
                                     <Label htmlFor="likes">
-                                        <TranslatableText staticKey="notifications.settings.likes">
+                                        <TranslatableText staticKey="notifications.settings.likes" fallback="Likes">
                                             الإعجابات
                                         </TranslatableText>
                                     </Label>
                                     <p className="text-sm text-muted-foreground">
-                                        <TranslatableText staticKey="notifications.settings.likesDesc">
+                                        <TranslatableText staticKey="notifications.settings.likesDesc" fallback="When someone likes your trips or posts">
                                             عندما يعجب أحد برحلتك
                                         </TranslatableText>
                                     </p>
@@ -158,12 +158,12 @@ const NotificationSettingsPage: React.FC = () => {
                                 <MessageCircle className="h-5 w-5 text-blue-500" />
                                 <div>
                                     <Label htmlFor="comments">
-                                        <TranslatableText staticKey="notifications.settings.comments">
+                                        <TranslatableText staticKey="notifications.settings.comments" fallback="Comments">
                                             التعليقات
                                         </TranslatableText>
                                     </Label>
                                     <p className="text-sm text-muted-foreground">
-                                        <TranslatableText staticKey="notifications.settings.commentsDesc">
+                                        <TranslatableText staticKey="notifications.settings.commentsDesc" fallback="When someone comments on your content">
                                             عندما يعلق أحد على رحلتك
                                         </TranslatableText>
                                     </p>
@@ -184,12 +184,12 @@ const NotificationSettingsPage: React.FC = () => {
                                 <UserPlus className="h-5 w-5 text-green-500" />
                                 <div>
                                     <Label htmlFor="follows">
-                                        <TranslatableText staticKey="notifications.settings.follows">
+                                        <TranslatableText staticKey="notifications.settings.follows" fallback="New Followers">
                                             المتابعات
                                         </TranslatableText>
                                     </Label>
                                     <p className="text-sm text-muted-foreground">
-                                        <TranslatableText staticKey="notifications.settings.followsDesc">
+                                        <TranslatableText staticKey="notifications.settings.followsDesc" fallback="When someone starts following you">
                                             عندما يتابعك أحد
                                         </TranslatableText>
                                     </p>
@@ -210,12 +210,12 @@ const NotificationSettingsPage: React.FC = () => {
                                 <Share2 className="h-5 w-5 text-purple-500" />
                                 <div>
                                     <Label htmlFor="shares">
-                                        <TranslatableText staticKey="notifications.settings.shares">
+                                        <TranslatableText staticKey="notifications.settings.shares" fallback="Shares">
                                             المشاركات
                                         </TranslatableText>
                                     </Label>
                                     <p className="text-sm text-muted-foreground">
-                                        <TranslatableText staticKey="notifications.settings.sharesDesc">
+                                        <TranslatableText staticKey="notifications.settings.sharesDesc" fallback="When someone shares your content">
                                             عندما يشارك أحد رحلتك
                                         </TranslatableText>
                                     </p>
@@ -234,12 +234,12 @@ const NotificationSettingsPage: React.FC = () => {
                 <Card className="mt-6">
                     <CardHeader>
                         <CardTitle>
-                            <TranslatableText staticKey="notifications.settings.deliveryTitle">
+                            <TranslatableText staticKey="notifications.settings.deliveryTitle" fallback="Delivery Methods">
                                 طرق التوصيل
                             </TranslatableText>
                         </CardTitle>
                         <CardDescription>
-                            <TranslatableText staticKey="notifications.settings.deliveryDescription">
+                            <TranslatableText staticKey="notifications.settings.deliveryDescription" fallback="Choose how you want to receive notifications">
                                 اختر كيف تريد استقبال الإشعارات
                             </TranslatableText>
                         </CardDescription>
@@ -251,12 +251,12 @@ const NotificationSettingsPage: React.FC = () => {
                                 <Smartphone className="h-5 w-5 text-blue-500" />
                                 <div>
                                     <Label htmlFor="push">
-                                        <TranslatableText staticKey="notifications.settings.push">
+                                        <TranslatableText staticKey="notifications.settings.push" fallback="Push Notifications">
                                             إشعارات فورية
                                         </TranslatableText>
                                     </Label>
                                     <p className="text-sm text-muted-foreground">
-                                        <TranslatableText staticKey="notifications.settings.pushDesc">
+                                        <TranslatableText staticKey="notifications.settings.pushDesc" fallback="Receive instant notifications on your device">
                                             إشعارات في الوقت الفعلي على الموقع
                                         </TranslatableText>
                                     </p>
@@ -277,12 +277,12 @@ const NotificationSettingsPage: React.FC = () => {
                                 <Mail className="h-5 w-5 text-orange-500" />
                                 <div>
                                     <Label htmlFor="email">
-                                        <TranslatableText staticKey="notifications.settings.email">
+                                        <TranslatableText staticKey="notifications.settings.email" fallback="Email Notifications">
                                             إشعارات البريد الإلكتروني
                                         </TranslatableText>
                                     </Label>
                                     <p className="text-sm text-muted-foreground">
-                                        <TranslatableText staticKey="notifications.settings.emailDesc">
+                                        <TranslatableText staticKey="notifications.settings.emailDesc" fallback="Send daily summary of notifications">
                                             إرسال ملخص يومي بالإشعارات
                                         </TranslatableText>
                                     </p>
@@ -301,9 +301,9 @@ const NotificationSettingsPage: React.FC = () => {
                 <div className="mt-6 flex justify-end">
                     <Button onClick={handleSave} disabled={isUpdating}>
                         {isUpdating ? (
-                            <TranslatableText staticKey="common.saving">جاري الحفظ...</TranslatableText>
+                            <TranslatableText staticKey="common.saving" fallback="Saving...">جاري الحفظ...</TranslatableText>
                         ) : (
-                            <TranslatableText staticKey="common.save">حفظ التغييرات</TranslatableText>
+                            <TranslatableText staticKey="notifications.settings.saveChanges" fallback="Save Changes">حفظ التغييرات</TranslatableText>
                         )}
                     </Button>
                 </div>

@@ -72,10 +72,22 @@ const SearchResults = () => {
     <Link
       key={user.id}
       to={`/profile/${user.id}`}
-      className="block p-4 bg-white rounded-lg border border-gray-200 hover:border-primary/50 hover:shadow-md transition-all duration-200"
+      className={`
+        block p-4 bg-white rounded-lg border hover:border-primary/50 hover:shadow-md transition-all duration-200
+        ${user.subscription_status?.has_verified_badge
+          ? 'border-2 border-yellow-500 animate-glow'
+          : 'border-gray-200'
+        }
+      `}
     >
       <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-4`}>
-        <Avatar className="h-12 w-12">
+        <Avatar className={`
+          h-12 w-12
+          ${user.subscription_status?.has_verified_badge
+            ? 'border-2 border-yellow-500 animate-glow-avatar'
+            : 'border-gray-200'
+          }
+        `}>
           <AvatarImage src={user.profile?.avatar} alt={user.profile?.first_name} />
           <AvatarFallback>
             <User className="h-6 w-6" />
@@ -89,6 +101,11 @@ const SearchResults = () => {
             {user.is_verified && (
               <Badge variant="outline" className="text-xs">
                 <TranslatableText staticKey="searchResults.verified">Verified</TranslatableText>
+              </Badge>
+            )}
+            {user.subscription_status?.has_verified_badge && (
+              <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900 text-xs">
+                <TranslatableText staticKey="searchResults.premium">Premium</TranslatableText>
               </Badge>
             )}
           </div>

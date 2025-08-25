@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -50,6 +50,19 @@ const Feed = () => {
       throw error;
     }
   };
+
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || isLoadingMore) {
+        return;
+      }
+      handleLoadMore();
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isLoadingMore]);
 
   const categories = [
     'Adventure', 'Beach', 'Culture', 'Nature', 'City', 'Food', 'History', 'Photography'
@@ -154,16 +167,16 @@ const Feed = () => {
                 ));
               })()}
             </div>
-            <div className="text-center">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handleLoadMore}
-                disabled={isLoadingMore}
-              >
-                <TranslatableText staticKey={isLoadingMore ? 'feed.loading' : 'feed.loadMoreAdventures'}>{isLoadingMore ? 'Loading...' : 'Load More Adventures'}</TranslatableText>
-              </Button>
-            </div>
+            {isLoadingMore && (
+              <div className="text-center py-8">
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                  <span className="text-gray-600">
+                    <TranslatableText staticKey="feed.loading" fallback="Loading more adventures...">Loading more adventures...</TranslatableText>
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
           <div className="lg:col-span-1 space-y-6">
             <Card>
@@ -220,11 +233,7 @@ const Feed = () => {
                     </div>
                   )}
                 </div>
-                <Button variant="outline" className="w-full mt-4" asChild>
-                  <Link to="/explore">
-                    <TranslatableText staticKey="feed.discoverMore">Discover More</TranslatableText>
-                  </Link>
-                </Button>
+
               </CardContent>
             </Card>
           </div>
