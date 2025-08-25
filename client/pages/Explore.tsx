@@ -113,7 +113,11 @@ const Explore = () => {
       trending: false
     }
   ];
-
+  const handleRefresh = () => {
+    setPage(1);
+    setExploreItems([]);
+    refetch();
+  };
   useEffect(() => {
     if (exploreData?.results) {
       setExploreItems(prev => (page === 1 ? exploreData.results : [...prev, ...exploreData.results]));

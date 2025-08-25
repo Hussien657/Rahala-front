@@ -381,84 +381,82 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
             <div className="border-b border-gray-100">
               <div className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 flex items-center justify-between">
                 <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
-                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
-                    <Clock className="h-4 w-4" />
-                    <span>
-                      <TranslatableText staticKey="search.recentSearches">Recent Searches</TranslatableText>
-                    </span>
-                  </div>
-                  <button
-                    onClick={handleClearHistory}
-                    className="text-xs text-gray-500 hover:text-gray-700"
-                  >
-                    <TranslatableText staticKey="search.clearAll">Clear All</TranslatableText>
-                  </button>
+                  <Clock className="h-4 w-4" />
+                  <span>
+                    <TranslatableText staticKey="search.recentSearches">Recent Searches</TranslatableText>
+                  </span>
                 </div>
-                {searchHistory.map((item, index) => (
-                  <div
-                    key={index}
-                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center justify-between"
-                    onClick={() => handleHistoryClick(item)}
-                  >
-                    <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-3`}>
-                      <Clock className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-900">{item.query}</span>
-                    </div>
-                    <span className="text-xs text-gray-500">
-                      {item.results_count} {item.results_count === 1 ? t('search.result', 'result') : t('search.results', 'results')}
-                    </span>
-                  </div>
-                ))}
+                <button
+                  onClick={handleClearHistory}
+                  className="text-xs text-gray-500 hover:text-gray-700"
+                >
+                  <TranslatableText staticKey="search.clearAll">Clear All</TranslatableText>
+                </button>
               </div>
-          )}
-
-              {/* Popular Searches */}
-              {popularSearches.length > 0 && !searchQuery.trim() && showPopular && !searchHistory.length && (
-                <div>
-                  <div className={`px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
-                    <div className={`px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
-                      <TrendingUp className="h-4 w-4" />
-                      <span>
-                        <TranslatableText staticKey="search.popularSearches">Popular Searches</TranslatableText>
-                      </span>
-                    </div>
-                    {popularSearches.map((item, index) => (
-                      <div
-                        key={index}
-                        className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center justify-between"
-                        onClick={() => handlePopularSearchClick(item)}
-                      >
-                        <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-3`}>
-                          <TrendingUp className="h-4 w-4 text-blue-500" />
-                          <span className="text-gray-900">{item.query}</span>
-                        </div>
-                        <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
-                          <span className="text-xs text-gray-500">
-                            {item.search_count} {item.search_count === 1 ? t('search.search', 'search') : t('search.searches', 'searches')}
-                          </span>
-                          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                        </div>
-                      </div>
-                    ))}
+              {searchHistory.map((item, index) => (
+                <div
+                  key={index}
+                  className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center justify-between"
+                  onClick={() => handleHistoryClick(item)}
+                >
+                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-3`}>
+                    <Clock className="h-4 w-4 text-gray-400" />
+                    <span className="text-gray-900">{item.query}</span>
                   </div>
+                  <span className="text-xs text-gray-500">
+                    {item.results_count} {item.results_count === 1 ? t('search.result', 'result') : t('search.results', 'results')}
+                  </span>
+                </div>
+              ))}
+            </div>
           )}
 
-                  {/* No Results */}
-                  {!isSearchLoading && searchQuery.trim() && searchResults.length === 0 && searchSuggestions.length === 0 && (
-                    <div className="p-4 text-center text-gray-500">
-                      <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                      <div>
-                        <TranslatableText staticKey="search.noResults">No results found for</TranslatableText> "{searchQuery}"
-                      </div>
-                      <div className="text-sm mt-1">
-                        <TranslatableText staticKey="search.tryDifferentWords">Try different words or check spelling</TranslatableText>
-                      </div>
-                    </div>
-                  )}
+          {/* Popular Searches */}
+          {popularSearches.length > 0 && !searchQuery.trim() && showPopular && !searchHistory.length && (
+            <div className="border-b border-gray-100">
+              <div className={`px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
+                <TrendingUp className="h-4 w-4" />
+                <span>
+                  <TranslatableText staticKey="search.popularSearches">Popular Searches</TranslatableText>
+                </span>
+              </div>
+              {popularSearches.map((item, index) => (
+                <div
+                  key={index}
+                  className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center justify-between"
+                  onClick={() => handlePopularSearchClick(item)}
+                >
+                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-3`}>
+                    <TrendingUp className="h-4 w-4 text-blue-500" />
+                    <span className="text-gray-900">{item.query}</span>
+                  </div>
+                  <div className={`flex items-center ${direction === 'rtl' ? 'space-x-reverse' : ''} space-x-2`}>
+                    <span className="text-xs text-gray-500">
+                      {item.search_count} {item.search_count === 1 ? t('search.search', 'search') : t('search.searches', 'searches')}
+                    </span>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
-          );
+          )}
+
+          {/* No Results */}
+          {!isSearchLoading && searchQuery.trim() && searchResults.length === 0 && searchSuggestions.length === 0 && (
+            <div className="p-4 text-center text-gray-500">
+              <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+              <div>
+                <TranslatableText staticKey="search.noResults">No results found for</TranslatableText> "{searchQuery}"
+              </div>
+              <div className="text-sm mt-1">
+                <TranslatableText staticKey="search.tryDifferentWords">Try different words or check spelling</TranslatableText>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
-          export default AdvancedSearch;
+export default AdvancedSearch;
